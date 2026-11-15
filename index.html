@@ -216,11 +216,12 @@
 
     const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
 
-    const USER_DISPLAY_NAMES = {
-      'mama@familie.local': 'Mama',
-      'papa@familie.local': 'Papa',
-      'yusfkemler@gmail.com': 'Yusuf'
-    };
+    // Keine erfundenen Namen mehr – Namen werden direkt aus den echten E-Mails abgeleitet (z.B. yusuf@... -> Yusuf)
+    function getDisplayName(email) {
+      if (!email) return 'Mitglied';
+      const rawName = email.split('@')[0];
+      return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    }
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let currentUser = null;
@@ -228,13 +229,6 @@
     let chatMessages = [];
     let todos = [];
     let currentRotation = { current_person: 'Osman', id: null };
-
-    function getDisplayName(email) {
-      if (!email) return 'Mitglied';
-      if (USER_DISPLAY_NAMES[email]) return USER_DISPLAY_NAMES[email];
-      const rawName = email.split('@')[0];
-      return rawName.charAt(0).toUpperCase() + rawName.slice(1);
-    }
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
@@ -271,8 +265,8 @@
         initApp(session.user);
       } else {
         currentUser = null;
-        document.getElementById('auth-view').classList.remove('hidden');
-        document.getElementById('app-view').classList.add('hidden');
+        document.getElementById('auth-view').classList.add('hidden');
+        document.getElementById('app-view').classList.remove('hidden');
       }
     });
 
@@ -362,8 +356,8 @@
       todos = todoData || [];
       renderTodos();
 
-      // Rotation korrekt abrufen (neuester Stand)
-      const { data: rotData } = await db.from('family_rotation').select('*').order('created_at', { ascending: false }).limit(1);
+      // Rotation sicher auslesen
+      const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
         currentRotation = rotData[0];
       } else {
@@ -447,11 +441,12 @@
       const nextIndex = (currentIndex + 1) % ROTATION_MEMBERS.length;
       const nextPerson = ROTATION_MEMBERS[nextIndex];
 
-      // Neuen Dienst in Supabase speichern (neuer Datensatz für den Verlauf)
-      const { error } = await db.from('family_rotation').insert([{ current_person: nextPerson, completed: false }]);
-      if (error) {
-        showToast('Fehler beim Weitergeben', true);
-        return;
+      if (currentRotation.id) {
+        const { error } = await db.from('family_rotation').update({ current_person: nextPerson }).eq('id', currentRotation.id);
+        if (error) return showToast('Fehler beim Weitergeben: ' + error.message, true);
+      } else {
+        const { error } = await db.from('family_rotation').insert([{ current_person: nextPerson, completed: false }]);
+        if (error) return showToast('Fehler beim Weitergeben: ' + error.message, true);
       }
 
       currentRotation.current_person = nextPerson;
@@ -494,17 +489,18 @@
       container.scrollTop = container.scrollHeight;
     }
 
+    // Bestenliste: Zeigt rein die echten User, die sich eingeloggt / Aufgaben erledigt haben
     function renderLeaderboard() {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
-      const allMembersSet = new Set(Object.values(USER_DISPLAY_NAMES));
-      if (currentUser) allMembersSet.add(getDisplayName(currentUser.email));
-      allTasks.forEach(t => allMembersSet.add(t.user_name));
+      const activeUsersSet = new Set();
+      if (currentUser) activeUsersSet.add(getDisplayName(currentUser.email));
+      allTasks.forEach(t => activeUsersSet.add(t.user_name));
 
       const monthlyScores = {};
-      allMembersSet.forEach(name => {
+      activeUsersSet.forEach(name => {
         monthlyScores[name] = 0;
       });
 
@@ -521,8 +517,12 @@
         .sort((a, b) => b.points - a.points);
 
       const container = document.getElementById('leaderboard-list');
-      const medals = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅', '🏅'];
-      
+      if (sorted.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Noch keine Teilnehmer registriert.</p>`;
+        return;
+      }
+
+      const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
       container.innerHTML = sorted.map((entry, idx) => {
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0 && entry.points > 0;
