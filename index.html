@@ -7,12 +7,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
   <style>
     body {
       font-family: 'Inter', sans-serif;
       background: radial-gradient(circle at top right, #064e3b, #0f172a 55%, #020617);
       color: #f8fafc;
       min-height: 100vh;
+      overflow-x: hidden; /* Verhindert horizontales Scrollen auf dem Handy */
     }
     .glass {
       background: rgba(30, 41, 59, 0.6);
@@ -84,7 +86,7 @@
   </div>
 
   <!-- MAIN APP VIEW -->
-  <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-4 sm:p-6">
+  <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3 sm:p-6">
     <header class="glass rounded-2xl px-5 py-3.5 flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
         <span class="text-xl">🏆</span>
@@ -103,27 +105,34 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- LINKS: Familien-To-Do-Liste & Chat -->
+      <!-- LINKS: To-Do-Liste & Chat -->
       <div class="lg:col-span-3 space-y-6">
+        
+        <!-- ROTATIONS-DIENSTPLAN (Wer ist in der Küche dran?) -->
         <section class="glass rounded-3xl p-5">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-bold flex items-center gap-1.5">📌 Familien-To-Do-Liste</h2>
+          <h2 class="text-sm font-bold mb-2 flex items-center gap-1.5">🔄 Küchen-Dienstplan</h2>
+          <p class="text-[11px] text-slate-400 mb-3">Wer fertig ist, klickt auf Weitergeben:</p>
+          <div id="rotation-box" class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800 text-center">
+            <!-- Wird dynamisch geladen -->
           </div>
-          <form id="todo-form" class="flex gap-2 mb-3">
-            <input type="text" id="todo-input" required placeholder="Neue Aufgabe..."
-              class="flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white" />
-            <button type="submit" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">+</button>
-          </form>
+        </section>
+
+        <!-- FAMILIEN TO-DO-LISTE -->
+        <section class="glass rounded-3xl p-5">
+          <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">📌 Familien-To-Do-Liste</h2>
+          <p class="text-[11px] text-slate-400 mb-3">Wähle eine anstehende Aufgabe aus:</p>
+          <div id="todo-selector-container" class="space-y-2 mb-3"></div>
           <div id="todo-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
         </section>
 
-        <section class="glass rounded-3xl p-5 flex flex-col h-[350px]">
+        <!-- CHAT -->
+        <section class="glass rounded-3xl p-5 flex flex-col h-[320px]">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2 pr-1 mb-3 text-xs"></div>
           <form id="chat-form" class="flex gap-2">
             <input type="text" id="chat-input" required placeholder="Nachricht..."
-              class="flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white" />
-            <button type="submit" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">Senden</button>
+              class="w-full min-w-0 flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white" />
+            <button type="submit" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold whitespace-nowrap">Senden</button>
           </form>
         </section>
       </div>
@@ -148,11 +157,11 @@
             <label class="block text-xs font-medium text-slate-300 mb-2">
               Eigene Aufgabe eintragen <span class="text-emerald-400 font-bold">(+15 Points)</span>
             </label>
-            <form id="custom-task-form" class="flex gap-2">
+            <form id="custom-task-form" class="flex flex-col sm:flex-row gap-2">
               <input type="text" id="custom-task-input" required placeholder="z. B. Blumen gegossen..."
-                class="flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white" />
+                class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white" />
               <button type="submit"
-                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
                 Eintragen
               </button>
             </form>
@@ -185,7 +194,7 @@
       },
       {
         title: '🚽 Toilette putzen',
-        points: 40,
+        points: 25,
         sub: []
       },
       {
@@ -199,18 +208,28 @@
         sub: []
       },
       {
-        title: '🧺 Wäsche (Oberkategorie)',
+        title: '🍽️ Abwasch (z. B. Töpfe waschen)',
+        points: 35,
+        sub: []
+      },
+      {
+        title: '🧺 Wäsche',
         isAccordion: true,
         subtasks: [
           { title: 'Wäsche in Waschmaschine', points: 15 },
-          { title: 'Wäsche aufhängen', points: 20 }
+          { title: 'Wäsche aufhängen', points: 20 },
+          { title: 'Wäsche aufsammeln/hochbringen', points: 15 }
         ]
       }
     ];
 
+    const ALL_FAMILY_MEMBERS = ['Mama', 'Papa', 'Yusuf', 'Esma', 'Eslem'];
+    const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
+
     const USER_DISPLAY_NAMES = {
       'mama@familie.local': 'Mama',
       'papa@familie.local': 'Papa',
+      'yusافkemler@gmail.com': 'Yusuf',
       'yusfkemler@gmail.com': 'Yusuf'
     };
 
@@ -219,6 +238,7 @@
     let allTasks = [];
     let chatMessages = [];
     let todos = [];
+    let currentRotation = { current_person: 'Osman', id: null };
 
     function getDisplayName(email) {
       if (USER_DISPLAY_NAMES[email]) return USER_DISPLAY_NAMES[email];
@@ -248,17 +268,20 @@
 
     async function logout() {
       await db.auth.signOut();
+      localStorage.clear();
+      location.reload();
     }
+
+    // Auto-Login prüfen über Supabase Session
+    db.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        initApp(session.user);
+      }
+    });
 
     db.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        currentUser = session.user;
-        document.getElementById('auth-view').classList.add('hidden');
-        document.getElementById('app-view').classList.remove('hidden');
-        document.getElementById('current-user-badge').textContent = '👤 ' + getDisplayName(currentUser.email);
-        renderCategories();
-        await loadAllData();
-        subscribeToRealtime();
+        initApp(session.user);
       } else {
         currentUser = null;
         document.getElementById('auth-view').classList.remove('hidden');
@@ -266,19 +289,30 @@
       }
     });
 
+    async function initApp(user) {
+      currentUser = user;
+      document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+      document.getElementById('current-user-badge').textContent = '👤 ' + getDisplayName(currentUser.email);
+      renderCategories();
+      renderTodoSelector();
+      await loadAllData();
+      subscribeToRealtime();
+    }
+
     function renderCategories() {
       const container = document.getElementById('tasks-container');
       container.innerHTML = TASK_CATEGORIES.map((cat, idx) => {
         if (cat.isAccordion) {
           return `
             <div class="border border-slate-700/80 rounded-2xl bg-slate-800/40 overflow-hidden">
-              <button onclick="toggleAccordion(${idx})" class="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/80 transition">
+              <button type="button" onclick="toggleAccordion(${idx})" class="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/80 transition">
                 <span class="text-sm font-medium text-slate-100">${cat.title}</span>
                 <span class="text-xs text-emerald-400 font-bold">▼ Aufklappen</span>
               </button>
               <div id="accordion-${idx}" class="accordion-content px-3 pb-3 space-y-2">
                 ${cat.subtasks.map(sub => `
-                  <button onclick="addTask('${escapeHtml(sub.title)}', ${sub.points})"
+                  <button type="button" onclick="addTask('${escapeHtml(sub.title)}', ${sub.points})"
                     class="w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-emerald-600/20 border border-slate-700/50 flex items-center justify-between text-left transition">
                     <span class="text-xs text-slate-200">↳ ${escapeHtml(sub.title)}</span>
                     <span class="text-xs font-bold text-emerald-300">+${sub.points} Pkt</span>
@@ -289,7 +323,7 @@
           `;
         } else {
           return `
-            <button onclick="addTask('${escapeHtml(cat.title)}', ${cat.points})"
+            <button type="button" onclick="addTask('${escapeHtml(cat.title)}', ${cat.points})"
               class="w-full p-3.5 rounded-2xl bg-slate-800/80 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 active:scale-[0.98] transition flex items-center justify-between text-left group">
               <span class="text-sm font-medium text-slate-100 group-hover:text-white">${escapeHtml(cat.title)}</span>
               <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 ml-2 whitespace-nowrap">+${cat.points} Pkt</span>
@@ -302,6 +336,26 @@
     function toggleAccordion(idx) {
       const el = document.getElementById(`accordion-${idx}`);
       el.classList.toggle('open');
+    }
+
+    // Dropdown/Auswahl für To-Do-Liste aus vorgegebenen Aufgaben generieren
+    function renderTodoSelector() {
+      const selectorContainer = document.getElementById('todo-selector-container');
+      let html = `<div class="space-y-2">`;
+      
+      // Hauptaufgaben + Eigene Aufgabe Option
+      TASK_CATEGORIES.forEach(cat => {
+        if (cat.isAccordion) {
+          cat.subtasks.forEach(sub => {
+            html += `<button type="button" onclick="addTodoItem('${escapeHtml(sub.title)}', ${sub.points})" class="w-full p-2 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200"><span>+ ${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
+          });
+        } else {
+          html += `<button type="button" onclick="addTodoItem('${escapeHtml(cat.title)}', ${cat.points})" class="w-full p-2 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200"><span>+ ${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+        }
+      });
+      html += `<button type="button" onclick="addTodoItem('✨ Eigene Aufgabe', 15)" class="w-full p-2 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>+ Eigene Aufgabe eintragen</span><span>15 Pkt</span></button>`;
+      html += `</div>`;
+      selectorContainer.innerHTML = html;
     }
 
     async function loadAllData() {
@@ -317,6 +371,16 @@
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
       todos = todoData || [];
       renderTodos();
+
+      // Rotation laden
+      const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
+      if (rotData && rotData.length > 0) {
+        currentRotation = rotData[0];
+      } else {
+        await db.from('family_rotation').insert([{ current_person: 'Osman', completed: false }]);
+        currentRotation = { current_person: 'Osman', completed: false };
+      }
+      renderRotation();
     }
 
     function subscribeToRealtime() {
@@ -354,15 +418,17 @@
       if (error) showToast('Konnte nicht gelöscht werden', true);
     }
 
-    // To-Do-Liste
-    document.getElementById('todo-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const input = document.getElementById('todo-input');
-      const text = input.value.trim();
-      if (!text) return;
-      await db.from('family_todos').insert([{ text, created_by: getDisplayName(currentUser.email) }]);
-      input.value = '';
-    });
+    // To-Do-Liste Funktionen
+    async function addTodoItem(taskTitle, points) {
+      await db.from('family_todos').insert([{ text: taskTitle, points: points, created_by: getDisplayName(currentUser.email) }]);
+      showToast(`"${taskTitle}" zur To-Do-Liste hinzugefügt!`);
+    }
+
+    async function completeTodo(id, taskTitle, points) {
+      // Als Aufgabe eintragen (Punkte gutschreiben) & aus To-Do löschen
+      await addTask(taskTitle, points);
+      await db.from('family_todos').delete().eq('id', id);
+    }
 
     async function deleteTodo(id) {
       await db.from('family_todos').delete().eq('id', id);
@@ -375,11 +441,44 @@
         return;
       }
       container.innerHTML = todos.map(t => `
-        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-xs">
-          <span class="text-slate-200">${escapeHtml(t.text)}</span>
-          <button onclick="deleteTodo('${t.id}')" class="text-emerald-400 hover:text-emerald-300 font-bold px-2 py-0.5 bg-emerald-950/50 rounded-lg">✓ Abhaken</button>
+        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-xs gap-2">
+          <div class="truncate">
+            <span class="text-slate-200 font-medium block truncate">${escapeHtml(t.text)}</span>
+            <span class="text-[10px] text-emerald-400">+${t.points} Pkt (${escapeHtml(t.created_by)})</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="completeTodo('${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${t.points})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px]">✓ Erledigen</button>
+            <button type="button" onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
+          </div>
         </div>
       `).join('');
+    }
+
+    // Rotation / Dienstplan (Osman -> Yusuf -> Esma -> Eslem)
+    async function nextRotationPerson() {
+      const currentIndex = ROTATION_MEMBERS.indexOf(currentRotation.current_person);
+      const nextIndex = (currentIndex + 1) % ROTATION_MEMBERS.length;
+      const nextPerson = ROTATION_MEMBERS[nextIndex];
+
+      if (currentRotation.id) {
+        await db.from('family_rotation').update({ current_person: nextPerson }).eq('id', currentRotation.id);
+      } else {
+        await db.from('family_rotation').insert([{ current_person: nextPerson, completed: false }]);
+      }
+      showToast(`Dienst weitergegeben an ${nextPerson}!`);
+    }
+
+    function renderRotation() {
+      const box = document.getElementById('rotation-box');
+      box.innerHTML = `
+        <div class="mb-2">
+          <span class="text-xs text-slate-400">Aktuell dran mit Küche/Spüli:</span>
+          <p class="text-base font-extrabold text-amber-300 mt-0.5">${escapeHtml(currentRotation.current_person || 'Osman')}</p>
+        </div>
+        <button type="button" onclick="nextRotationPerson()" class="w-full py-2 px-3 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white font-semibold text-xs transition">
+          Erledigt → Weitergeben an Nächsten ➔
+        </button>
+      `;
     }
 
     // Chat
@@ -406,17 +505,22 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // Bestenliste mit monatlichem Reset & Klick auf Profil
+    // Bestenliste mit allen Usern (auch mit 0 Punkten)
     function renderLeaderboard() {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
       const monthlyScores = {};
+      // Initiale alle bekannten Familienmitglieder mit 0 Punkten
+      ALL_FAMILY_MEMBERS.forEach(member => {
+        monthlyScores[member] = 0;
+      });
+
       allTasks.forEach(t => {
         const d = new Date(t.created_at);
         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-          if (!monthlyScores[t.user_name]) monthlyScores[t.user_name] = 0;
+          if (monthlyScores[t.user_name] === undefined) monthlyScores[t.user_name] = 0;
           monthlyScores[t.user_name] += t.points;
         }
       });
@@ -426,20 +530,16 @@
         .sort((a, b) => b.points - a.points);
 
       const container = document.getElementById('leaderboard-list');
-      if (sorted.length === 0) {
-        container.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Noch keine Punkte in diesem Monat. Starte als Erster!</p>`;
-        return;
-      }
-
-      const medals = ['🥇', '🥈', '🥉'];
+      const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
+      
       container.innerHTML = sorted.map((entry, idx) => {
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0;
         return `
-          <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
+          <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-4 rounded-2xl flex items-center justify-between ${isFirst && entry.points > 0 ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
             <div class="flex items-center gap-3">
               <span class="text-xl w-7 text-center font-bold">${medal}</span>
-              <span class="font-bold text-base ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
+              <span class="font-bold text-base ${isFirst && entry.points > 0 ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
             </div>
             <div class="text-right">
               <span class="text-lg font-extrabold text-emerald-400">${entry.points}</span>
@@ -530,7 +630,7 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
-              ${isOwn ? `<button onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
+              ${isOwn ? `<button type="button" onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
             </div>
           </div>
         `;
