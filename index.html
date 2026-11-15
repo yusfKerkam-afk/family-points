@@ -103,14 +103,14 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- LINKS: To-Do-Liste / Notizen & Chat -->
+      <!-- LINKS: Familien-To-Do-Liste & Chat -->
       <div class="lg:col-span-3 space-y-6">
         <section class="glass rounded-3xl p-5">
           <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-bold flex items-center gap-1.5">📌 Familien-Notizen</h2>
+            <h2 class="text-sm font-bold flex items-center gap-1.5">📌 Familien-To-Do-Liste</h2>
           </div>
           <form id="todo-form" class="flex gap-2 mb-3">
-            <input type="text" id="todo-input" required placeholder="Neue Notiz / To-Do..."
+            <input type="text" id="todo-input" required placeholder="Neue Aufgabe..."
               class="flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white" />
             <button type="submit" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">+</button>
           </form>
@@ -305,18 +305,15 @@
     }
 
     async function loadAllData() {
-      // Aufgaben laden
       const { data: tasksData } = await db.from('family_tasks').select('*').order('created_at', { ascending: false });
       allTasks = tasksData || [];
       renderLeaderboard();
       renderActivityFeed();
 
-      // Chat laden
       const { data: chatData } = await db.from('family_chat').select('*').order('created_at', { ascending: true }).limit(50);
       chatMessages = chatData || [];
       renderChat();
 
-      // To-Dos laden
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
       todos = todoData || [];
       renderTodos();
@@ -330,7 +327,6 @@
         .subscribe();
     }
 
-    // Aufgabe hinzufügen
     document.getElementById('custom-task-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('custom-task-input');
@@ -352,7 +348,13 @@
       showToast(`+${points} Points für ${userName}!`);
     }
 
-    // To-Do / Notizen
+    async function deleteTask(id) {
+      if (!confirm('Diesen Eintrag wirklich löschen?')) return;
+      const { error } = await db.from('family_tasks').delete().eq('id', id);
+      if (error) showToast('Konnte nicht gelöscht werden', true);
+    }
+
+    // To-Do-Liste
     document.getElementById('todo-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('todo-input');
@@ -369,7 +371,7 @@
     function renderTodos() {
       const container = document.getElementById('todo-list');
       if (todos.length === 0) {
-        container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">Keine offenen Notizen.</p>`;
+        container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">Keine offenen To-Dos.</p>`;
         return;
       }
       container.innerHTML = todos.map(t => `
@@ -410,7 +412,6 @@
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
-      // Filtere Aufgaben für den aktuellen Monat (für monatlichen Punktestand)
       const monthlyScores = {};
       allTasks.forEach(t => {
         const d = new Date(t.created_at);
@@ -449,7 +450,6 @@
       }).join('');
     }
 
-    // Profil Modal öffnen mit Statistiken
     function openProfile(userName) {
       const modal = document.getElementById('profile-modal');
       const content = document.getElementById('profile-content');
@@ -457,7 +457,6 @@
       const userTasks = allTasks.filter(t => t.user_name === userName);
       const totalPoints = userTasks.reduce((acc, curr) => acc + curr.points, 0);
 
-      // Statistiken berechnen
       const taskCounts = {};
       userTasks.forEach(t => {
         taskCounts[t.task_title] = (taskCounts[t.task_title] || 0) + 1;
@@ -521,13 +520,18 @@
 
       feed.innerHTML = recent.map(t => {
         const timeStr = new Date(t.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const isOwn = currentUser && t.user_id === currentUser.id;
         return `
           <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
             <div>
               <span class="font-bold text-emerald-400">${escapeHtml(t.user_name)}</span>
               <p class="text-slate-200">${escapeHtml(t.task_title)}</p>
+              <span class="text-[10px] text-slate-500">${timeStr} Uhr</span>
             </div>
-            <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
+              ${isOwn ? `<button onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
+            </div>
           </div>
         `;
       }).join('');
