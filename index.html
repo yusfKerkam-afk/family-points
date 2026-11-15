@@ -69,8 +69,11 @@
       <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben -->
       <div id="todo-extra-input-container" class="mb-4 hidden">
         <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400 mb-1.5"></label>
-        <input type="text" id="todo-extra-input" placeholder="..."
-          class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
+        <div class="flex gap-2">
+          <input type="text" id="todo-extra-input" placeholder="..."
+            class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
+          <button type="button" id="todo-confirm-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
+        </div>
       </div>
 
       <div id="todo-selection-list" class="space-y-2"></div>
@@ -224,7 +227,6 @@
 
     const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
 
-    // FESTE ZUORDNUNG: Deine E-Mail-Namen-Zuordnungen
     const USER_DISPLAY_NAMES = {
       'yusfkemler@gmail.com': 'Yusuf',
       'eslem@gmail.com': 'Eslem',
@@ -339,10 +341,14 @@
     function openTodoModal() {
       document.getElementById('todo-extra-input-container').classList.add('hidden');
       document.getElementById('todo-extra-input').value = '';
+      renderTodoSelectorModal();
       document.getElementById('todo-modal').classList.remove('hidden');
     }
 
     function closeTodoModal() {
+      document.getElementById('todo-extra-input-container').classList.add('hidden');
+      document.getElementById('todo-extra-input').value = '';
+      renderTodoSelectorModal();
       document.getElementById('todo-modal').classList.add('hidden');
     }
 
@@ -368,17 +374,15 @@
       const extraContainer = document.getElementById('todo-extra-input-container');
       const extraLabel = document.getElementById('todo-extra-label');
       const extraInput = document.getElementById('todo-extra-input');
+      const confirmBtn = document.getElementById('todo-confirm-btn');
 
       if (title === 'CUSTOM') {
         extraLabel.textContent = 'Welche eigene Aufgabe?';
         extraInput.placeholder = 'z. B. Blumen gegossen...';
         extraContainer.classList.remove('hidden');
+        extraInput.value = '';
         extraInput.focus();
-        document.getElementById('todo-selection-list').innerHTML = `
-          <button type="button" onclick="confirmCustomTodo(${points})" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs transition">
-            Hinzufügen (+15 Pkt)
-          </button>
-        `;
+        confirmBtn.onclick = () => confirmCustomTodo(points);
         return;
       }
 
@@ -386,12 +390,9 @@
         extraLabel.textContent = 'Welche Zimmer? (optional)';
         extraInput.placeholder = 'z. B. Wohnzimmer & Flur...';
         extraContainer.classList.remove('hidden');
+        extraInput.value = '';
         extraInput.focus();
-        document.getElementById('todo-selection-list').innerHTML = `
-          <button type="button" onclick="confirmExtraTodo('${title}', ${points})" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs transition">
-            Mit Zimmer-Angabe hinzufügen (+${points} Pkt)
-          </button>
-        `;
+        confirmBtn.onclick = () => confirmExtraTodo(title, points);
         return;
       }
 
@@ -556,7 +557,6 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // Bestenliste: Zeigt IMMER alle definierten Familienmitglieder an (auch mit 0 Punkten)
     function renderLeaderboard() {
       const now = new Date();
       const currentMonth = now.getMonth();
