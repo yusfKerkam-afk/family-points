@@ -14,7 +14,7 @@
       background: radial-gradient(circle at top right, #064e3b, #0f172a 55%, #020617);
       color: #f8fafc;
       min-height: 100vh;
-      overflow-x: hidden; /* Verhindert horizontales Scrollen auf dem Handy */
+      overflow-x: hidden;
     }
     .glass {
       background: rgba(30, 41, 59, 0.6);
@@ -54,6 +54,18 @@
     <div class="glass-card w-full max-w-lg p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
       <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
       <div id="profile-content"></div>
+    </div>
+  </div>
+
+  <!-- TODO AUSWAHL MODAL -->
+  <div id="todo-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-bold">📌 To-Do hinzufügen</h3>
+        <button onclick="closeTodoModal()" class="text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
+      <div id="todo-selection-list" class="space-y-2"></div>
     </div>
   </div>
 
@@ -108,25 +120,24 @@
       <!-- LINKS: To-Do-Liste & Chat -->
       <div class="lg:col-span-3 space-y-6">
         
-        <!-- ROTATIONS-DIENSTPLAN (Wer ist in der Küche dran?) -->
+        <!-- ROTATIONS-DIENSTPLAN -->
         <section class="glass rounded-3xl p-5">
           <h2 class="text-sm font-bold mb-2 flex items-center gap-1.5">🔄 Küchen-Dienstplan</h2>
           <p class="text-[11px] text-slate-400 mb-3">Wer fertig ist, klickt auf Weitergeben:</p>
-          <div id="rotation-box" class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800 text-center">
-            <!-- Wird dynamisch geladen -->
-          </div>
+          <div id="rotation-box" class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800 text-center"></div>
         </section>
 
         <!-- FAMILIEN TO-DO-LISTE -->
         <section class="glass rounded-3xl p-5">
-          <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">📌 Familien-To-Do-Liste</h2>
-          <p class="text-[11px] text-slate-400 mb-3">Wähle eine anstehende Aufgabe aus:</p>
-          <div id="todo-selector-container" class="space-y-2 mb-3"></div>
-          <div id="todo-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold flex items-center gap-1.5">📌 To-Do-Liste</h2>
+            <button onclick="openTodoModal()" class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">+ Hinzufügen</button>
+          </div>
+          <div id="todo-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </section>
 
         <!-- CHAT -->
-        <section class="glass rounded-3xl p-5 flex flex-col h-[320px]">
+        <section class="glass rounded-3xl p-5 flex flex-col h-[300px]">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2 pr-1 mb-3 text-xs"></div>
           <form id="chat-form" class="flex gap-2">
@@ -187,31 +198,11 @@
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
     const TASK_CATEGORIES = [
-      {
-        title: '🍳 Beim Essen bereiten helfen',
-        points: 25,
-        sub: []
-      },
-      {
-        title: '🚽 Toilette putzen',
-        points: 25,
-        sub: []
-      },
-      {
-        title: '🧽 Staub wischen',
-        points: 20,
-        sub: []
-      },
-      {
-        title: '🧹 Boden wischen / Staub saugen',
-        points: 30,
-        sub: []
-      },
-      {
-        title: '🍽️ Abwasch (z. B. Töpfe waschen)',
-        points: 35,
-        sub: []
-      },
+      { title: '🍳 Beim Essen bereiten helfen', points: 25 },
+      { title: '🚽 Toilette putzen', points: 25 },
+      { title: '🧽 Staub wischen', points: 20 },
+      { title: '🧹 Boden wischen / Staub saugen', points: 30 },
+      { title: '🍽️ Abwasch (z. B. Töpfe waschen)', points: 35 },
       {
         title: '🧺 Wäsche',
         isAccordion: true,
@@ -223,13 +214,11 @@
       }
     ];
 
-    const ALL_FAMILY_MEMBERS = ['Mama', 'Papa', 'Yusuf', 'Esma', 'Eslem'];
     const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
 
     const USER_DISPLAY_NAMES = {
       'mama@familie.local': 'Mama',
       'papa@familie.local': 'Papa',
-      'yusافkemler@gmail.com': 'Yusuf',
       'yusfkemler@gmail.com': 'Yusuf'
     };
 
@@ -272,11 +261,8 @@
       location.reload();
     }
 
-    // Auto-Login prüfen über Supabase Session
     db.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        initApp(session.user);
-      }
+      if (session?.user) initApp(session.user);
     });
 
     db.auth.onAuthStateChange(async (event, session) => {
@@ -295,7 +281,7 @@
       document.getElementById('app-view').classList.remove('hidden');
       document.getElementById('current-user-badge').textContent = '👤 ' + getDisplayName(currentUser.email);
       renderCategories();
-      renderTodoSelector();
+      renderTodoSelectorModal();
       await loadAllData();
       subscribeToRealtime();
     }
@@ -334,28 +320,32 @@
     }
 
     function toggleAccordion(idx) {
-      const el = document.getElementById(`accordion-${idx}`);
-      el.classList.toggle('open');
+      document.getElementById(`accordion-${idx}`).classList.toggle('open');
     }
 
-    // Dropdown/Auswahl für To-Do-Liste aus vorgegebenen Aufgaben generieren
-    function renderTodoSelector() {
-      const selectorContainer = document.getElementById('todo-selector-container');
-      let html = `<div class="space-y-2">`;
-      
-      // Hauptaufgaben + Eigene Aufgabe Option
+    function openTodoModal() {
+      document.getElementById('todo-modal').classList.remove('hidden');
+    }
+
+    function closeTodoModal() {
+      document.getElementById('todo-modal').classList.add('hidden');
+    }
+
+    // Modal-Auswahl für To-Dos aus vorgegebenen Kategorien
+    function renderTodoSelectorModal() {
+      const listContainer = document.getElementById('todo-selection-list');
+      let html = '';
       TASK_CATEGORIES.forEach(cat => {
         if (cat.isAccordion) {
           cat.subtasks.forEach(sub => {
-            html += `<button type="button" onclick="addTodoItem('${escapeHtml(sub.title)}', ${sub.points})" class="w-full p-2 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200"><span>+ ${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
+            html += `<button type="button" onclick="addTodoItem('${escapeHtml(sub.title)}', ${sub.points})" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
           });
         } else {
-          html += `<button type="button" onclick="addTodoItem('${escapeHtml(cat.title)}', ${cat.points})" class="w-full p-2 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200"><span>+ ${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="addTodoItem('${escapeHtml(cat.title)}', ${cat.points})" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
         }
       });
-      html += `<button type="button" onclick="addTodoItem('✨ Eigene Aufgabe', 15)" class="w-full p-2 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>+ Eigene Aufgabe eintragen</span><span>15 Pkt</span></button>`;
-      html += `</div>`;
-      selectorContainer.innerHTML = html;
+      html += `<button type="button" onclick="addTodoItem('✨ Eigene Aufgabe', 15)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>✨ Eigene Aufgabe</span><span>15 Pkt</span></button>`;
+      listContainer.innerHTML = html;
     }
 
     async function loadAllData() {
@@ -372,7 +362,6 @@
       todos = todoData || [];
       renderTodos();
 
-      // Rotation laden
       const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
         currentRotation = rotData[0];
@@ -414,18 +403,16 @@
 
     async function deleteTask(id) {
       if (!confirm('Diesen Eintrag wirklich löschen?')) return;
-      const { error } = await db.from('family_tasks').delete().eq('id', id);
-      if (error) showToast('Konnte nicht gelöscht werden', true);
+      await db.from('family_tasks').delete().eq('id', id);
     }
 
-    // To-Do-Liste Funktionen
     async function addTodoItem(taskTitle, points) {
-      await db.from('family_todos').insert([{ text: taskTitle, points: points, created_by: getDisplayName(currentUser.email) }]);
+      await db.from('family_todos').insert({ text: taskTitle, points: points, created_by: getDisplayName(currentUser.email) });
+      closeTodoModal();
       showToast(`"${taskTitle}" zur To-Do-Liste hinzugefügt!`);
     }
 
     async function completeTodo(id, taskTitle, points) {
-      // Als Aufgabe eintragen (Punkte gutschreiben) & aus To-Do löschen
       await addTask(taskTitle, points);
       await db.from('family_todos').delete().eq('id', id);
     }
@@ -444,7 +431,7 @@
         <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-xs gap-2">
           <div class="truncate">
             <span class="text-slate-200 font-medium block truncate">${escapeHtml(t.text)}</span>
-            <span class="text-[10px] text-emerald-400">+${t.points} Pkt (${escapeHtml(t.created_by)})</span>
+            <span class="text-[10px] text-emerald-400">+${t.points} Pkt (von ${escapeHtml(t.created_by)})</span>
           </div>
           <div class="flex items-center gap-1 shrink-0">
             <button type="button" onclick="completeTodo('${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${t.points})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px]">✓ Erledigen</button>
@@ -454,7 +441,6 @@
       `).join('');
     }
 
-    // Rotation / Dienstplan (Osman -> Yusuf -> Esma -> Eslem)
     async function nextRotationPerson() {
       const currentIndex = ROTATION_MEMBERS.indexOf(currentRotation.current_person);
       const nextIndex = (currentIndex + 1) % ROTATION_MEMBERS.length;
@@ -469,8 +455,7 @@
     }
 
     function renderRotation() {
-      const box = document.getElementById('rotation-box');
-      box.innerHTML = `
+      document.getElementById('rotation-box').innerHTML = `
         <div class="mb-2">
           <span class="text-xs text-slate-400">Aktuell dran mit Küche/Spüli:</span>
           <p class="text-base font-extrabold text-amber-300 mt-0.5">${escapeHtml(currentRotation.current_person || 'Osman')}</p>
@@ -481,7 +466,6 @@
       `;
     }
 
-    // Chat
     document.getElementById('chat-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('chat-input');
@@ -496,25 +480,29 @@
 
     function renderChat() {
       const container = document.getElementById('chat-messages');
-      container.innerHTML = chatMessages.map(m => `
+      container.innerHTML = chatMessages.m => `
         <div>
           <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
           <span class="text-slate-300">${escapeHtml(m.message)}</span>
         </div>
-      `).join('');
+      `.join('');
       container.scrollTop = container.scrollHeight;
     }
 
-    // Bestenliste mit allen Usern (auch mit 0 Punkten)
+    // Bestenliste: Zeigt NUR aktive User aus der Datenbank (keine erfundenen Namen)
     function renderLeaderboard() {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
+      // Sammle alle eindeutigen User, die sich jemals eingeloggt/eine Aufgabe gemacht haben
+      const activeUsersSet = new Set();
+      if (currentUser) activeUsersSet.add(getDisplayName(currentUser.email));
+      allTasks.forEach(t => activeUsersSet.add(t.user_name));
+
       const monthlyScores = {};
-      // Initiale alle bekannten Familienmitglieder mit 0 Punkten
-      ALL_FAMILY_MEMBERS.forEach(member => {
-        monthlyScores[member] = 0;
+      activeUsersSet.forEach(name => {
+        monthlyScores[name] = 0;
       });
 
       allTasks.forEach(t => {
@@ -530,8 +518,12 @@
         .sort((a, b) => b.points - a.points);
 
       const container = document.getElementById('leaderboard-list');
+      if (sorted.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Noch keine Teilnehmer registriert.</p>`;
+        return;
+      }
+
       const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
-      
       container.innerHTML = sorted.map((entry, idx) => {
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0;
