@@ -64,11 +64,14 @@
         <h3 class="text-base font-bold">📌 To-Do hinzufügen</h3>
         <button onclick="closeTodoModal()" class="text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
+      <p id="todo-modal-desc" class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
       
       <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben -->
       <div id="todo-extra-input-container" class="mb-4 hidden">
-        <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400 mb-1.5"></label>
+        <div class="flex justify-between items-center mb-1.5">
+          <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400"></label>
+          <button type="button" onclick="resetTodoSelection()" class="text-[11px] text-slate-400 hover:text-white underline">← Abbrechen</button>
+        </div>
         <div class="flex gap-2">
           <input type="text" id="todo-extra-input" placeholder="..."
             class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
@@ -296,7 +299,7 @@
       document.getElementById('app-view').classList.remove('hidden');
       document.getElementById('current-user-badge').textContent = '👤 ' + getDisplayName(currentUser.email);
       renderCategories();
-      renderTodoSelectorModal();
+      resetTodoSelection();
       await loadAllData();
       subscribeToRealtime();
     }
@@ -339,17 +342,20 @@
     }
 
     function openTodoModal() {
-      document.getElementById('todo-extra-input-container').classList.add('hidden');
-      document.getElementById('todo-extra-input').value = '';
-      renderTodoSelectorModal();
+      resetTodoSelection();
       document.getElementById('todo-modal').classList.remove('hidden');
     }
 
     function closeTodoModal() {
+      resetTodoSelection();
+      document.getElementById('todo-modal').classList.add('hidden');
+    }
+
+    function resetTodoSelection() {
       document.getElementById('todo-extra-input-container').classList.add('hidden');
       document.getElementById('todo-extra-input').value = '';
+      document.getElementById('todo-modal-desc').style.display = 'block';
       renderTodoSelectorModal();
-      document.getElementById('todo-modal').classList.add('hidden');
     }
 
     function renderTodoSelectorModal() {
@@ -377,9 +383,11 @@
       const confirmBtn = document.getElementById('todo-confirm-btn');
 
       if (title === 'CUSTOM') {
-        extraLabel.textContent = 'Welche eigene Aufgabe?';
+        extraLabel.textContent = 'Welche eigene Aufgabe? (+15 Pkt)';
         extraInput.placeholder = 'z. B. Blumen gegossen...';
         extraContainer.classList.remove('hidden');
+        document.getElementById('todo-modal-desc').style.display = 'none';
+        document.getElementById('todo-selection-list').innerHTML = ''; // Liste ausblenden bei Eingabe
         extraInput.value = '';
         extraInput.focus();
         confirmBtn.onclick = () => confirmCustomTodo(points);
@@ -387,9 +395,11 @@
       }
 
       if (hasExtra) {
-        extraLabel.textContent = 'Welche Zimmer? (optional)';
-        extraInput.placeholder = 'z. B. Wohnzimmer & Flur...';
+        extraLabel.textContent = `Welche Zimmer? (${title}, +${points} Pkt)`;
+        extraInput.placeholder = 'z. B. Wohnzimmer & Flur (optional)...';
         extraContainer.classList.remove('hidden');
+        document.getElementById('todo-modal-desc').style.display = 'none';
+        document.getElementById('todo-selection-list').innerHTML = ''; // Liste ausblenden bei Eingabe
         extraInput.value = '';
         extraInput.focus();
         confirmBtn.onclick = () => confirmExtraTodo(title, points);
