@@ -216,9 +216,21 @@
 
     const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
 
-    // Keine erfundenen Namen mehr – Namen werden direkt aus den echten E-Mails abgeleitet (z.B. yusuf@... -> Yusuf)
+    // FESTE ZUORDNUNG: Hier kannst du E-Mails ganz exakt auf echte Namen mappen!
+    const USER_DISPLAY_NAMES = {
+      'yusfkemler@gmail.com': 'Yusuf',
+      'eslem@gmail.com': 'Eslem',
+      'SedaChef@gmail.com': 'Seda Chef',
+      'IboBoss@gmail.com': 'Ibo Boss',
+      // Füge hier weitere Familienmitglieder hinzu, falls gewünscht:
+      // 'beispiel@gmail.com': 'Name'
+    };
+
     function getDisplayName(email) {
       if (!email) return 'Mitglied';
+      if (USER_DISPLAY_NAMES[email]) return USER_DISPLAY_NAMES[email];
+      
+      // Fallback: Nimm exakt den Teil vor dem '@' und mach den ersten Buchstaben groß
       const rawName = email.split('@')[0];
       return rawName.charAt(0).toUpperCase() + rawName.slice(1);
     }
@@ -265,8 +277,8 @@
         initApp(session.user);
       } else {
         currentUser = null;
-        document.getElementById('auth-view').classList.add('hidden');
-        document.getElementById('app-view').classList.remove('hidden');
+        document.getElementById('auth-view').classList.remove('hidden');
+        document.getElementById('app-view').classList.add('hidden');
       }
     });
 
@@ -356,7 +368,6 @@
       todos = todoData || [];
       renderTodos();
 
-      // Rotation sicher auslesen
       const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
         currentRotation = rotData[0];
@@ -489,18 +500,20 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // Bestenliste: Zeigt rein die echten User, die sich eingeloggt / Aufgaben erledigt haben
+    // Bestenliste: Zeigt IMMER alle definierten Familienmitglieder an (auch mit 0 Punkten)
     function renderLeaderboard() {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
-      const activeUsersSet = new Set();
-      if (currentUser) activeUsersSet.add(getDisplayName(currentUser.email));
-      allTasks.forEach(t => activeUsersSet.add(t.user_name));
+      // Nimm alle Namen aus unserer festen Liste + alle, die jemals aktiv waren oder eingeloggt sind
+      const allMembersSet = new Set(Object.values(USER_DISPLAY_NAMES));
+      ROTATION_MEMBERS.forEach(m => allMembersSet.add(m)); // Auch Osman, Esma etc. als feste Teilnehmer
+      if (currentUser) allMembersSet.add(getDisplayName(currentUser.email));
+      allTasks.forEach(t => allMembersSet.add(t.user_name));
 
       const monthlyScores = {};
-      activeUsersSet.forEach(name => {
+      allMembersSet.forEach(name => {
         monthlyScores[name] = 0;
       });
 
@@ -517,12 +530,8 @@
         .sort((a, b) => b.points - a.points);
 
       const container = document.getElementById('leaderboard-list');
-      if (sorted.length === 0) {
-        container.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Noch keine Teilnehmer registriert.</p>`;
-        return;
-      }
-
-      const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
+      const medals = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅', '🏅'];
+      
       container.innerHTML = sorted.map((entry, idx) => {
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0 && entry.points > 0;
