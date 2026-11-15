@@ -65,6 +65,14 @@
         <button onclick="closeTodoModal()" class="text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
       </div>
       <p class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
+      
+      <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben -->
+      <div id="todo-extra-input-container" class="mb-4 hidden">
+        <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400 mb-1.5"></label>
+        <input type="text" id="todo-extra-input" placeholder="..."
+          class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
+      </div>
+
       <div id="todo-selection-list" class="space-y-2"></div>
     </div>
   </div>
@@ -201,7 +209,7 @@
       { title: '🍳 Beim Essen bereiten helfen', points: 25 },
       { title: '🚽 Toilette putzen', points: 25 },
       { title: '🧽 Staub wischen', points: 20 },
-      { title: '🧹 Boden wischen / Staub saugen', points: 30 },
+      { title: '🧹 Boden wischen / Staub saugen', points: 30, hasExtra: true },
       { title: '🍽️ Abwasch (z. B. Töpfe waschen)', points: 35 },
       {
         title: '🧺 Wäsche',
@@ -216,7 +224,7 @@
 
     const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
 
-    // FESTE ZUORDNUNG: Hier kannst du E-Mails ganz exakt auf echte Namen mappen!
+    // FESTE ZUORDNUNG: Deine E-Mail-Namen-Zuordnungen
     const USER_DISPLAY_NAMES = {
       'yusfkemler@gmail.com': 'Yusuf',
       'eslem@gmail.com': 'Eslem',
@@ -224,15 +232,11 @@
       'IboBoss@gmail.com': 'Ibo Boss',
       'osi@gmail.com': 'Osman',
       'esma@gmail.com': 'Esma',
-      // Füge hier weitere Familienmitglieder hinzu, falls gewünscht:
-      // 'beispiel@gmail.com': 'Name'
     };
 
     function getDisplayName(email) {
       if (!email) return 'Mitglied';
       if (USER_DISPLAY_NAMES[email]) return USER_DISPLAY_NAMES[email];
-      
-      // Fallback: Nimm exakt den Teil vor dem '@' und mach den ersten Buchstaben groß
       const rawName = email.split('@')[0];
       return rawName.charAt(0).toUpperCase() + rawName.slice(1);
     }
@@ -333,6 +337,8 @@
     }
 
     function openTodoModal() {
+      document.getElementById('todo-extra-input-container').classList.add('hidden');
+      document.getElementById('todo-extra-input').value = '';
       document.getElementById('todo-modal').classList.remove('hidden');
     }
 
@@ -346,14 +352,62 @@
       TASK_CATEGORIES.forEach(cat => {
         if (cat.isAccordion) {
           cat.subtasks.forEach(sub => {
-            html += `<button type="button" onclick="addTodoItem('${escapeHtml(sub.title)}', ${sub.points})" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
+            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, false)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
           });
+        } else if (cat.hasExtra) {
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, true)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)} (mit Zimmer-Option)</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
         } else {
-          html += `<button type="button" onclick="addTodoItem('${escapeHtml(cat.title)}', ${cat.points})" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, false)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
         }
       });
-      html += `<button type="button" onclick="addTodoItem('✨ Eigene Aufgabe', 15)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>✨ Eigene Aufgabe</span><span>15 Pkt</span></button>`;
+      html += `<button type="button" onclick="handleTodoSelect('CUSTOM', 15, false)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>✨ Eigene Aufgabe eingeben...</span><span>15 Pkt</span></button>`;
       listContainer.innerHTML = html;
+    }
+
+    function handleTodoSelect(title, points, hasExtra) {
+      const extraContainer = document.getElementById('todo-extra-input-container');
+      const extraLabel = document.getElementById('todo-extra-label');
+      const extraInput = document.getElementById('todo-extra-input');
+
+      if (title === 'CUSTOM') {
+        extraLabel.textContent = 'Welche eigene Aufgabe?';
+        extraInput.placeholder = 'z. B. Blumen gegossen...';
+        extraContainer.classList.remove('hidden');
+        extraInput.focus();
+        document.getElementById('todo-selection-list').innerHTML = `
+          <button type="button" onclick="confirmCustomTodo(${points})" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs transition">
+            Hinzufügen (+15 Pkt)
+          </button>
+        `;
+        return;
+      }
+
+      if (hasExtra) {
+        extraLabel.textContent = 'Welche Zimmer? (optional)';
+        extraInput.placeholder = 'z. B. Wohnzimmer & Flur...';
+        extraContainer.classList.remove('hidden');
+        extraInput.focus();
+        document.getElementById('todo-selection-list').innerHTML = `
+          <button type="button" onclick="confirmExtraTodo('${title}', ${points})" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs transition">
+            Mit Zimmer-Angabe hinzufügen (+${points} Pkt)
+          </button>
+        `;
+        return;
+      }
+
+      addTodoItem(title, points);
+    }
+
+    async function confirmCustomTodo(points) {
+      const inputVal = document.getElementById('todo-extra-input').value.trim();
+      if (!inputVal) return showToast('Bitte gib eine Aufgabe ein!', true);
+      await addTodoItem('✨ ' + inputVal, points);
+    }
+
+    async function confirmExtraTodo(baseTitle, points) {
+      const roomVal = document.getElementById('todo-extra-input').value.trim();
+      const finalTitle = roomVal ? `${baseTitle} (${roomVal})` : baseTitle;
+      await addTodoItem(finalTitle, points);
     }
 
     async function loadAllData() {
@@ -508,9 +562,8 @@
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
-      // Nimm alle Namen aus unserer festen Liste + alle, die jemals aktiv waren oder eingeloggt sind
       const allMembersSet = new Set(Object.values(USER_DISPLAY_NAMES));
-      ROTATION_MEMBERS.forEach(m => allMembersSet.add(m)); // Auch Osman, Esma etc. als feste Teilnehmer
+      ROTATION_MEMBERS.forEach(m => allMembersSet.add(m));
       if (currentUser) allMembersSet.add(getDisplayName(currentUser.email));
       allTasks.forEach(t => allMembersSet.add(t.user_name));
 
