@@ -43,6 +43,22 @@
       max-height: 300px;
       opacity: 1;
     }
+    /* SCHWEBENDE PUNKTE ANIMATION */
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(0.8); }
+      50% { opacity: 1; transform: translateY(-25px) scale(1.1); }
+      100% { opacity: 0; transform: translateY(-50px) scale(1); }
+    }
+    .floating-points {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #34d399;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      animation: floatUp 1s ease-out forwards;
+    }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
@@ -54,22 +70,22 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints?</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.1)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Verbesserungen für euch:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Zimmer-Option beim Saugen/Wischen:</b> Du kannst jetzt optional eintragen, welche Zimmer gereinigt wurden!</span>
+          <span class="text-slate-200"><b>Uhrzeiten im Chat:</b> Neben jeder Nachricht siehst du jetzt direkt, wann sie gesendet wurde!</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Eigene Aufgaben im To-Do:</b> Flexibel eigene To-Dos mit direktem Textfeld hinzufügen.</span>
+          <span class="text-slate-200"><b>Punkte-Animation:</b> Kurzer, schicker Pop-up-Effekt direkt auf dem Bildschirm, wenn du Punkte sammelst!</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Feste Namen & Bestenliste:</b> Eure echten Namen werden korrekt angezeigt und jeder ist direkt in der Liste.</span>
+          <span class="text-slate-200"><b>Zimmer-Option beim Saugen/Wischen:</b> Optional eintragen, welche Zimmer gereinigt wurden.</span>
         </div>
       </div>
 
@@ -246,7 +262,8 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.0';
+    // Version erhöht, damit das Changelog-Popup einmalig mit den neuen Features erscheint
+    const CURRENT_VERSION = '1.1';
 
     const TASK_CATEGORIES = [
       { title: '🍳 Beim Essen bereiten helfen', points: 25 },
@@ -271,6 +288,7 @@
       'yusfkemler@gmail.com': 'Yusuf',
       'eslem@gmail.com': 'Eslem',
       'SedaChef@gmail.com': 'Seda Chef',
+      'IboBoss@gmail.com': 'Ibo Boss',
       'osi@gmail.com': 'Osman',
       'esma@gmail.com': 'Esma',
     };
@@ -295,6 +313,29 @@
       t.className = `fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl transition-all ${isError ? 'bg-red-900/90 border border-red-500 text-red-100' : 'glass text-emerald-300 border-emerald-500/40'}`;
       t.classList.remove('hidden');
       setTimeout(() => t.classList.add('hidden'), 3500);
+    }
+
+    // ANIMATION: Schwebe-Punkte direkt beim Klick anzeigen
+    function showPointsAnimation(points, event) {
+      const el = document.createElement('div');
+      el.className = 'floating-points';
+      el.textContent = `+${points} Pkt 🚀`;
+      
+      // Position bestimmen (entweder Mausposition oder Bildschirmmitte)
+      let x = window.innerWidth / 2 - 30;
+      let y = window.innerHeight / 2 - 20;
+      if (event && event.clientX) {
+        x = event.clientX - 20;
+        y = event.clientY - 30;
+      }
+      
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      document.body.appendChild(el);
+      
+      setTimeout(() => {
+        el.remove();
+      }, 1000);
     }
 
     function escapeHtml(str) {
@@ -340,7 +381,7 @@
         initApp(session.user);
       } else {
         currentUser = null;
-        document.getElementById('auth-view').classList.remove('hidden');
+        document.getElementById('auth-view').classList.add('hidden');
         document.getElementById('app-view').classList.add('hidden');
       }
     });
@@ -369,7 +410,7 @@
               </button>
               <div id="accordion-${idx}" class="accordion-content px-3 pb-3 space-y-2">
                 ${cat.subtasks.map(sub => `
-                  <button type="button" onclick="addTask('${escapeHtml(sub.title)}', ${sub.points})"
+                  <button type="button" onclick="addTaskWithAnim(event, '${escapeHtml(sub.title)}', ${sub.points})"
                     class="w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-emerald-600/20 border border-slate-700/50 flex items-center justify-between text-left transition">
                     <span class="text-xs text-slate-200">↳ ${escapeHtml(sub.title)}</span>
                     <span class="text-xs font-bold text-emerald-300">+${sub.points} Pkt</span>
@@ -380,7 +421,7 @@
           `;
         } else {
           return `
-            <button type="button" onclick="addTask('${escapeHtml(cat.title)}', ${cat.points})"
+            <button type="button" onclick="addTaskWithAnim(event, '${escapeHtml(cat.title)}', ${cat.points})"
               class="w-full p-3.5 rounded-2xl bg-slate-800/80 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 active:scale-[0.98] transition flex items-center justify-between text-left group">
               <span class="text-sm font-medium text-slate-100 group-hover:text-white">${escapeHtml(cat.title)}</span>
               <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 ml-2 whitespace-nowrap">+${cat.points} Pkt</span>
@@ -511,9 +552,15 @@
       const input = document.getElementById('custom-task-input');
       const title = input.value.trim();
       if (!title) return;
+      showPointsAnimation(15, e);
       await addTask('✨ ' + title, 15);
       input.value = '';
     });
+
+    async function addTaskWithAnim(event, taskTitle, points) {
+      showPointsAnimation(points, event);
+      await addTask(taskTitle, points);
+    }
 
     async function addTask(taskTitle, points) {
       const userName = getDisplayName(currentUser.email);
@@ -545,7 +592,8 @@
       showToast(`"${cleanTitle}" zur To-Do-Liste hinzugefügt!`);
     }
 
-    async function completeTodo(id, taskTitle, points) {
+    async function completeTodo(event, id, taskTitle, points) {
+      showPointsAnimation(points, event);
       await addTask(taskTitle, points);
       await db.from('family_todos').delete().eq('id', id);
     }
@@ -567,7 +615,7 @@
             <span class="text-[10px] text-emerald-400 mt-0.5 block">+${t.points} Pkt (von ${escapeHtml(t.created_by)})</span>
           </div>
           <div class="flex items-center gap-1 shrink-0 pt-0.5">
-            <button type="button" onclick="completeTodo('${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${t.points})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
+            <button type="button" onclick="completeTodo(event, '${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${t.points})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
             <button type="button" onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
           </div>
         </div>
@@ -616,14 +664,25 @@
       input.value = '';
     });
 
+    // UHRZEIT IM CHAT ANZEIGEN
     function renderChat() {
       const container = document.getElementById('chat-messages');
-      container.innerHTML = chatMessages.map(m => `
-        <div>
-          <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
-          <span class="text-slate-300">${escapeHtml(m.message)}</span>
-        </div>
-      `).join('');
+      container.innerHTML = chatMessages.map(m => {
+        let timeString = '';
+        if (m.created_at) {
+          const d = new Date(m.created_at);
+          timeString = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        }
+        return `
+          <div class="flex items-baseline justify-between gap-2 bg-slate-900/40 p-1.5 rounded-lg">
+            <div>
+              <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
+              <span class="text-slate-300 ml-1">${escapeHtml(m.message)}</span>
+            </div>
+            <span class="text-[10px] text-slate-500 shrink-0">${timeString}</span>
+          </div>
+        `;
+      }).join('');
       container.scrollTop = container.scrollHeight;
     }
 
