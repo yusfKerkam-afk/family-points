@@ -65,27 +65,45 @@
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
+  <!-- STYLESCHES BESTÄTIGUNGS-MODAL (Löschen) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-sm p-6 rounded-3xl relative fade-in border border-red-500/30 text-center">
+      <div class="w-12 h-12 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
+      <h3 class="text-base font-bold text-slate-100 mb-1">Eintrag löschen?</h3>
+      <p class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
+      
+      <div class="flex gap-2">
+        <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
+          Abbrechen
+        </button>
+        <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition">
+          Löschen
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- WAS IST NEU MODAL (Changelog) -->
   <div id="changelog-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.1)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.2)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Verbesserungen für euch:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Uhrzeiten im Chat:</b> Neben jeder Nachricht siehst du jetzt direkt, wann sie gesendet wurde!</span>
+          <span class="text-slate-200"><b>Neues Bestätigungs-Design:</b> Das alte Browser-Löschfenster wurde durch ein schickes, modernes Design im App-Stil ersetzt!</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Uhrzeiten im Chat:</b> Neben jeder Nachricht siehst du jetzt direkt, wann sie gesendet wurde.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
           <span class="text-slate-200"><b>Punkte-Animation:</b> Kurzer, schicker Pop-up-Effekt direkt auf dem Bildschirm, wenn du Punkte sammelst!</span>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Zimmer-Option beim Saugen/Wischen:</b> Optional eintragen, welche Zimmer gereinigt wurden.</span>
         </div>
       </div>
 
@@ -262,8 +280,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    // Version erhöht, damit das Changelog-Popup einmalig mit den neuen Features erscheint
-    const CURRENT_VERSION = '1.1';
+    const CURRENT_VERSION = '1.2';
 
     const TASK_CATEGORIES = [
       { title: '🍳 Beim Essen bereiten helfen', points: 25 },
@@ -288,7 +305,6 @@
       'yusfkemler@gmail.com': 'Yusuf',
       'eslem@gmail.com': 'Eslem',
       'SedaChef@gmail.com': 'Seda Chef',
-      'IboBoss@gmail.com': 'Ibo Boss',
       'osi@gmail.com': 'Osman',
       'esma@gmail.com': 'Esma',
     };
@@ -321,7 +337,6 @@
       el.className = 'floating-points';
       el.textContent = `+${points} Pkt 🚀`;
       
-      // Position bestimmen (entweder Mausposition oder Bildschirmmitte)
       let x = window.innerWidth / 2 - 30;
       let y = window.innerHeight / 2 - 20;
       if (event && event.clientX) {
@@ -356,6 +371,25 @@
     function closeChangelog() {
       localStorage.setItem('familypoints_changelog_version', CURRENT_VERSION);
       document.getElementById('changelog-modal').classList.add('hidden');
+    }
+
+    // EIGENES STYLISCHES LÖSCH-MODAL
+    function confirmDeleteTask(id) {
+      const modal = document.getElementById('confirm-modal');
+      const confirmBtn = document.getElementById('confirm-delete-btn');
+      
+      modal.classList.remove('hidden');
+      
+      // Event-Listener für den Löschen-Button im Modal einmalig setzen
+      confirmBtn.onclick = async () => {
+        modal.classList.add('hidden');
+        await db.from('family_tasks').delete().eq('id', id);
+        showToast('Eintrag erfolgreich gelöscht.');
+      };
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirm-modal').classList.add('hidden');
     }
 
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
@@ -574,11 +608,6 @@
       showToast(`+${points} Points für ${userName}!`);
     }
 
-    async function deleteTask(id) {
-      if (!confirm('Diesen Eintrag wirklich löschen?')) return;
-      await db.from('family_tasks').delete().eq('id', id);
-    }
-
     async function addTodoItem(taskTitle, points) {
       const cleanTitle = String(taskTitle || '').trim();
       if (!cleanTitle) return;
@@ -664,7 +693,6 @@
       input.value = '';
     });
 
-    // UHRZEIT IM CHAT ANZEIGEN
     function renderChat() {
       const container = document.getElementById('chat-messages');
       container.innerHTML = chatMessages.map(m => {
@@ -814,7 +842,7 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
-              ${isOwn ? `<button type="button" onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
+              ${isOwn ? `<button type="button" onclick="confirmDeleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
             </div>
           </div>
         `;
