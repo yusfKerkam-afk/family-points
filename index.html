@@ -123,7 +123,6 @@
       </div>
       <p id="todo-modal-desc" class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
       
-      <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben -->
       <div id="todo-extra-input-container" class="mb-4 hidden">
         <div class="flex justify-between items-center mb-1.5">
           <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400"></label>
@@ -170,7 +169,7 @@
 
   <!-- MAIN APP VIEW -->
   <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3 sm:p-6">
-    <!-- RESPONSIVE HEADER MIT FAMILIEN-SCHMUCK (jetzt auch mobil sichtbar) -->
+    <!-- HEADER MIT SPRUCH (Mobil & Desktop sichtbar) -->
     <header class="glass rounded-2xl px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 mb-6">
       <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
         <div class="flex items-center gap-2.5">
@@ -180,9 +179,8 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
           </span>
         </div>
-        <!-- FAMILIEN NOTIZ / SCHMUCK (Auf Handy und Laptop sichtbar) -->
         <span class="text-[11px] text-slate-400/70 italic font-light tracking-wide sm:border-l sm:border-slate-700/60 sm:pl-3">
-          "Niyetin hayır, başlangıcın Bismillah ile olsun."
+          "Niyetin hayır, başlangıcın Bismillah olsun."
         </span>
       </div>
       <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
@@ -274,7 +272,7 @@
     </div>
   </div>
 
-  <!-- STYLESCHES BESTÄTIGUNGS-MODAL (Löschen) -->
+  <!-- MODAL: Löschen -->
   <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-sm p-6 rounded-3xl relative fade-in border border-red-500/30 text-center">
       <div class="w-12 h-12 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
@@ -601,7 +599,13 @@
       renderActivityFeed();
 
       const { data: chatData } = await db.from('family_chat').select('*').order('created_at', { ascending: true }).limit(50);
-      chatMessages = chatData || [];
+      chatMessages = (chatData || []).map(m => {
+        // Sicherstellen, dass reactions immer ein Objekt ist
+        if (!m.reactions || typeof m.reactions !== 'object') {
+          m.reactions = {};
+        }
+        return m;
+      });
       renderChat();
 
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
@@ -741,9 +745,13 @@
       input.value = '';
     });
 
-    async function toggleReaction(event, messageId, emoji, currentReactions) {
+    async function toggleReaction(event, messageId, emoji) {
       event.stopPropagation();
-      const reactions = JSON.parse(JSON.stringify(currentReactions || {}));
+      const msgObj = chatMessages.find(m => m.id === messageId);
+      if (!msgObj) return;
+
+      // Kopie der aktuellen Reaktionen anlegen
+      const reactions = JSON.parse(JSON.stringify(msgObj.reactions || {}));
       const userName = getDisplayName(currentUser.email);
       
       if (!reactions[emoji]) {
@@ -760,16 +768,15 @@
         reactions[emoji].push(userName);
       }
 
+      // In Datenbank speichern
       const { error } = await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
       if (error) {
         showToast('Fehler beim Reagieren: ' + error.message, true);
         return;
       }
 
-      const msgObj = chatMessages.find(m => m.id === messageId);
-      if (msgObj) {
-        msgObj.reactions = reactions;
-      }
+      // Lokal sofort aktualisieren
+      msgObj.reactions = reactions;
       closeReactionPopup();
       renderChat();
     }
@@ -811,12 +818,10 @@
         
         const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
           const hasVoted = users.includes(getDisplayName(currentUser?.email));
-          const escapedReactionsStr = JSON.stringify(reactions).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}', ${escapedReactionsStr})" class="text-[10px] px-1.5 py-0.5 rounded-md flex items-center gap-1 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span></button>`;
+          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" class="text-[10px] px-1.5 py-0.5 rounded-md flex items-center gap-1 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span></button>`;
         }).join('');
 
         const isPopupOpen = activeReactionPopupId === m.id;
-        const escapedReactionsStrPopup = JSON.stringify(reactions).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
         return `
           <div onclick="handleMessageClick(event, '${m.id}')" class="relative bg-slate-900/50 p-2 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
@@ -836,7 +841,7 @@
 
             ${isPopupOpen ? `
               <div class="absolute bottom-full left-0 mb-1 z-20 bg-slate-800 border border-slate-700 p-2 rounded-xl shadow-2xl flex gap-1.5 fade-in" onclick="event.stopPropagation()">
-                ${availableEmojis.map(emo => `<button onclick="toggleReaction(event, '${m.id}', '${emo}', ${escapedReactionsStrPopup})" class="text-base hover:scale-125 px-1.5 py-0.5 transition"><span>${emo}</span></button>`).join('')}
+                ${availableEmojis.map(emo => `<button onclick="toggleReaction(event, '${m.id}', '${emo}')" class="text-base hover:scale-125 px-1.5 py-0.5 transition"><span>${emo}</span></button>`).join('')}
               </div>
             ` : ''}
           </div>
