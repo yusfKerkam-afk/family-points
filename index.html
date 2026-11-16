@@ -170,9 +170,9 @@
 
   <!-- MAIN APP VIEW -->
   <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3 sm:p-6">
-    <!-- RESPONSIVE HEADER MIT FAMILIEN-SCHMUCK -->
+    <!-- RESPONSIVE HEADER MIT FAMILIEN-SCHMUCK (jetzt auch mobil sichtbar) -->
     <header class="glass rounded-2xl px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 mb-6">
-      <div class="flex items-center gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
         <div class="flex items-center gap-2.5">
           <span class="text-lg sm:text-xl">🏆</span>
           <span class="font-bold text-base sm:text-lg tracking-tight">FamilyPoints</span>
@@ -180,8 +180,8 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
           </span>
         </div>
-        <!-- FAMILIEN NOTIZ / SCHMUCK -->
-        <span class="hidden md:inline-block text-[11px] text-slate-400/60 italic font-light tracking-wide border-l border-slate-700/60 pl-3">
+        <!-- FAMILIEN NOTIZ / SCHMUCK (Auf Handy und Laptop sichtbar) -->
+        <span class="text-[11px] text-slate-400/70 italic font-light tracking-wide sm:border-l sm:border-slate-700/60 sm:pl-3">
           "Niyetin hayır, başlangıcın Bismillah olsun."
         </span>
       </div>
@@ -760,14 +760,12 @@
         reactions[emoji].push(userName);
       }
 
-      // Sofort in Datenbank aktualisieren
       const { error } = await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
       if (error) {
         showToast('Fehler beim Reagieren: ' + error.message, true);
         return;
       }
 
-      // Lokalen State sofort anpassen für flüssige UI
       const msgObj = chatMessages.find(m => m.id === messageId);
       if (msgObj) {
         msgObj.reactions = reactions;
