@@ -743,20 +743,37 @@
 
     async function toggleReaction(event, messageId, emoji, currentReactions) {
       event.stopPropagation();
-      const reactions = currentReactions || {};
+      const reactions = JSON.parse(JSON.stringify(currentReactions || {}));
       const userName = getDisplayName(currentUser.email);
       
-      if (!reactions[emoji]) reactions[emoji] = [];
+      if (!reactions[emoji]) {
+        reactions[emoji] = [];
+      }
+      
       const idx = reactions[emoji].indexOf(userName);
       if (idx > -1) {
         reactions[emoji].splice(idx, 1);
-        if (reactions[emoji].length === 0) delete reactions[emoji];
+        if (reactions[emoji].length === 0) {
+          delete reactions[emoji];
+        }
       } else {
         reactions[emoji].push(userName);
       }
 
-      await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
+      // Sofort in Datenbank aktualisieren
+      const { error } = await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
+      if (error) {
+        showToast('Fehler beim Reagieren: ' + error.message, true);
+        return;
+      }
+
+      // Lokalen State sofort anpassen für flüssige UI
+      const msgObj = chatMessages.find(m => m.id === messageId);
+      if (msgObj) {
+        msgObj.reactions = reactions;
+      }
       closeReactionPopup();
+      renderChat();
     }
 
     function handleMessageClick(event, messageId) {
@@ -796,10 +813,12 @@
         
         const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
           const hasVoted = users.includes(getDisplayName(currentUser?.email));
-          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-[10px] px-1.5 py-0.5 rounded-md ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300' : 'bg-slate-800/80 text-slate-300'}">${emoji} ${users.length}</button>`;
+          const escapedReactionsStr = JSON.stringify(reactions).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}', ${escapedReactionsStr})" class="text-[10px] px-1.5 py-0.5 rounded-md flex items-center gap-1 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span></button>`;
         }).join('');
 
         const isPopupOpen = activeReactionPopupId === m.id;
+        const escapedReactionsStrPopup = JSON.stringify(reactions).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
         return `
           <div onclick="handleMessageClick(event, '${m.id}')" class="relative bg-slate-900/50 p-2 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
@@ -819,7 +838,7 @@
 
             ${isPopupOpen ? `
               <div class="absolute bottom-full left-0 mb-1 z-20 bg-slate-800 border border-slate-700 p-2 rounded-xl shadow-2xl flex gap-1.5 fade-in" onclick="event.stopPropagation()">
-                ${availableEmojis.map(emo => `<button onclick="toggleReaction(event, '${m.id}', '${emo}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-base hover:scale-125 px-1.5 py-0.5 transition"><span>${emo}</span></button>`).join('')}
+                ${availableEmojis.map(emo => `<button onclick="toggleReaction(event, '${m.id}', '${emo}', ${escapedReactionsStrPopup})" class="text-base hover:scale-125 px-1.5 py-0.5 transition"><span>${emo}</span></button>`).join('')}
               </div>
             ` : ''}
           </div>
@@ -870,7 +889,6 @@
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0 && entry.points > 0;
         const showCrown = isFirst && isFirstDay;
-        // ERST AB 2 TAGEN DIE FLAMME ANZEIGEN
         const showStreak = entry.streak >= 2;
         
         return `
