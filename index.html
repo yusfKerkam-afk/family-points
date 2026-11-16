@@ -43,7 +43,6 @@
       max-height: 300px;
       opacity: 1;
     }
-    /* SCHWEBENDE PUNKTE ANIMATION */
     @keyframes floatUp {
       0% { opacity: 1; transform: translateY(0) scale(0.8); }
       50% { opacity: 1; transform: translateY(-25px) scale(1.1); }
@@ -65,21 +64,15 @@
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
-  <!-- STYLESCHES BESTÄTIGUNGS-MODAL (Löschen) -->
-  <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card w-full max-w-sm p-6 rounded-3xl relative fade-in border border-red-500/30 text-center">
-      <div class="w-12 h-12 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
-      <h3 class="text-base font-bold text-slate-100 mb-1">Eintrag löschen?</h3>
-      <p class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
-      
-      <div class="flex gap-2">
-        <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
-          Abbrechen
-        </button>
-        <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition">
-          Löschen
-        </button>
-      </div>
+  <!-- MONATSSIEGER / KRÖNUNGS-MODAL (Am 1. des Monats) -->
+  <div id="winner-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md p-8 rounded-3xl relative fade-in text-center border border-amber-400/50">
+      <div class="text-5xl mb-3">👑</div>
+      <h3 class="text-xl font-extrabold text-amber-300 mb-2">Monatssieger geehrt!</h3>
+      <p id="winner-text" class="text-sm text-slate-200 mb-6 font-medium"></p>
+      <button onclick="closeWinnerModal()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-amber-500/30">
+        In den neuen Monat starten! 🚀
+      </button>
     </div>
   </div>
 
@@ -88,22 +81,30 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.2)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.3)</h3>
       </div>
-      <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Verbesserungen für euch:</p>
+      <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Erweiterungen für euch:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Neues Bestätigungs-Design:</b> Das alte Browser-Löschfenster wurde durch ein schickes, modernes Design im App-Stil ersetzt!</span>
+          <span class="text-slate-200"><b>Monatliche Streaks (Serien):</b> Sieht genau, wer wie oft an aufeinanderfolgenden Tagen aktiv war (resettet monatlich).</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Uhrzeiten im Chat:</b> Neben jeder Nachricht siehst du jetzt direkt, wann sie gesendet wurde.</span>
+          <span class="text-slate-200"><b>Krone für den Monatssieger:</b> Am 1. des Monats wird der Sieger feierlich mit einer Krone ausgezeichnet!</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Punkte-Animation:</b> Kurzer, schicker Pop-up-Effekt direkt auf dem Bildschirm, wenn du Punkte sammelst!</span>
+          <span class="text-slate-200"><b>Dringend-Markierung für To-Dos:</b> Kleine Checkbox beim Erstellen, um wichtige Aufgaben hervorzuheben.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Familien-Leitspruch:</b> Ein dezent verblasster Schmuck-Spruch im Header.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Mini-Reaktionen im Chat:</b> Mit Emojis direkt auf Nachrichten antworten!</span>
         </div>
       </div>
 
@@ -130,16 +131,22 @@
       </div>
       <p id="todo-modal-desc" class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
       
-      <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben -->
+      <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben + DRINGEND CHECKBOX -->
       <div id="todo-extra-input-container" class="mb-4 hidden">
         <div class="flex justify-between items-center mb-1.5">
           <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400"></label>
           <button type="button" onclick="resetTodoSelection()" class="text-[11px] text-slate-400 hover:text-white underline">← Abbrechen</button>
         </div>
-        <div class="flex gap-2">
+        <div class="space-y-3">
           <input type="text" id="todo-extra-input" placeholder="..."
             class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
-          <button type="button" id="todo-confirm-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
+          
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="todo-urgent-checkbox" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-red-500 focus:ring-0">
+            <span class="text-xs text-red-400 font-medium">🚨 Als dringend markieren</span>
+          </label>
+
+          <button type="button" id="todo-confirm-btn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl">Hinzufügen</button>
         </div>
       </div>
 
@@ -177,17 +184,22 @@
 
   <!-- MAIN APP VIEW -->
   <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3 sm:p-6">
-    <!-- RESPONSIVE HEADER -->
+    <!-- RESPONSIVE HEADER MIT FAMILIEN-SCHMUCK -->
     <header class="glass rounded-2xl px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 mb-6">
-      <div class="flex items-center gap-2.5">
-        <span class="text-lg sm:text-xl">🏆</span>
-        <span class="font-bold text-base sm:text-lg tracking-tight">FamilyPoints</span>
-        <span class="hidden xs:inline-flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg sm:text-xl">🏆</span>
+          <span class="font-bold text-base sm:text-lg tracking-tight">FamilyPoints</span>
+          <span class="hidden xs:inline-flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
+          </span>
+        </div>
+        <!-- FAMILIEN NOTIZ / SCHMUCK -->
+        <span class="hidden md:inline-block text-[11px] text-slate-400/60 italic font-light tracking-wide border-l border-slate-700/60 pl-3">
+          "Niyetin hayır, başlangıcın Bismillah olsun."
         </span>
       </div>
       <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <!-- MINI-BUTTON FÜR UPDATE-INFO -->
         <button onclick="openChangelog()" class="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1">
           <span>🚀</span> Was ist neu?
         </button>
@@ -219,10 +231,10 @@
           <div id="todo-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </section>
 
-        <!-- CHAT -->
-        <section class="glass rounded-3xl p-5 flex flex-col h-[300px]">
+        <!-- CHAT MIT REAKTIONEN -->
+        <section class="glass rounded-3xl p-5 flex flex-col h-[320px]">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
-          <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2 pr-1 mb-3 text-xs"></div>
+          <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-3 text-xs"></div>
           <form id="chat-form" class="flex gap-2">
             <input type="text" id="chat-input" required placeholder="Nachricht..."
               class="w-full min-w-0 flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white" />
@@ -276,11 +288,29 @@
     </div>
   </div>
 
+  <!-- STYLESCHES BESTÄTIGUNGS-MODAL (Löschen) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-sm p-6 rounded-3xl relative fade-in border border-red-500/30 text-center">
+      <div class="w-12 h-12 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
+      <h3 class="text-base font-bold text-slate-100 mb-1">Eintrag löschen?</h3>
+      <p class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
+      
+      <div class="flex gap-2">
+        <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
+          Abbrechen
+        </button>
+        <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition">
+          Löschen
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.2';
+    const CURRENT_VERSION = '1.3';
 
     const TASK_CATEGORIES = [
       { title: '🍳 Beim Essen bereiten helfen', points: 25 },
@@ -331,7 +361,6 @@
       setTimeout(() => t.classList.add('hidden'), 3500);
     }
 
-    // ANIMATION: Schwebe-Punkte direkt beim Klick anzeigen
     function showPointsAnimation(points, event) {
       const el = document.createElement('div');
       el.className = 'floating-points';
@@ -373,14 +402,14 @@
       document.getElementById('changelog-modal').classList.add('hidden');
     }
 
-    // EIGENES STYLISCHES LÖSCH-MODAL
+    function closeWinnerModal() {
+      document.getElementById('winner-modal').classList.add('hidden');
+    }
+
     function confirmDeleteTask(id) {
       const modal = document.getElementById('confirm-modal');
       const confirmBtn = document.getElementById('confirm-delete-btn');
-      
       modal.classList.remove('hidden');
-      
-      // Event-Listener für den Löschen-Button im Modal einmalig setzen
       confirmBtn.onclick = async () => {
         modal.classList.add('hidden');
         await db.from('family_tasks').delete().eq('id', id);
@@ -430,6 +459,37 @@
       await loadAllData();
       subscribeToRealtime();
       checkChangelog();
+      checkMonthlyWinner();
+    }
+
+    // PRÜFEN OB HEUTE DER 1. DES MONATS IST -> MONATSSIEGER ANZEIGEN
+    function checkMonthlyWinner() {
+      const now = new Date();
+      if (now.getDate() === 1) {
+        const lastMonthKey = `winner_shown_${now.getFullYear()}_${now.getMonth()}`;
+        if (!localStorage.getItem(lastMonthKey)) {
+          // Berechne Sieger des Vormonats
+          const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+          const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+          
+          const scores = {};
+          allTasks.forEach(t => {
+            const d = new Date(t.created_at);
+            if (d.getMonth() === prevMonth && d.getFullYear() === prevYear) {
+              scores[t.user_name] = (scores[t.user_name] || 0) + t.points;
+            }
+          });
+          
+          const sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]);
+          if (sorted.length > 0) {
+            const winner = sorted[0][0];
+            const pts = sorted[0][1];
+            document.getElementById('winner-text').innerHTML = `Herzlichen Glückwunsch an <b>${escapeHtml(winner)}</b>! Du hast den letzten Monat mit fulminanten <b>${pts} Punkten</b> gewonnen und trägst heute stolz die Krone! 👑`;
+            document.getElementById('winner-modal').classList.remove('hidden');
+            localStorage.setItem(lastMonthKey, 'true');
+          }
+        }
+      }
     }
 
     function renderCategories() {
@@ -482,6 +542,7 @@
     function resetTodoSelection() {
       document.getElementById('todo-extra-input-container').classList.add('hidden');
       document.getElementById('todo-extra-input').value = '';
+      document.getElementById('todo-urgent-checkbox').checked = false;
       document.getElementById('todo-modal-desc').style.display = 'block';
       renderTodoSelectorModal();
     }
@@ -534,19 +595,21 @@
         return;
       }
 
-      addTodoItem(title, points);
+      addTodoItem(title, points, false);
     }
 
     async function confirmCustomTodo(points) {
       const inputVal = document.getElementById('todo-extra-input').value.trim();
+      const isUrgent = document.getElementById('todo-urgent-checkbox').checked;
       if (!inputVal) return showToast('Bitte gib eine Aufgabe ein!', true);
-      await addTodoItem('✨ ' + inputVal, points);
+      await addTodoItem('✨ ' + inputVal, points, isUrgent);
     }
 
     async function confirmExtraTodo(baseTitle, points) {
       const roomVal = document.getElementById('todo-extra-input').value.trim();
+      const isUrgent = document.getElementById('todo-urgent-checkbox').checked;
       const finalTitle = roomVal ? `${baseTitle} (${roomVal})` : baseTitle;
-      await addTodoItem(finalTitle, points);
+      await addTodoItem(finalTitle, points, isUrgent);
     }
 
     async function loadAllData() {
@@ -608,13 +671,14 @@
       showToast(`+${points} Points für ${userName}!`);
     }
 
-    async function addTodoItem(taskTitle, points) {
+    async function addTodoItem(taskTitle, points, isUrgent) {
       const cleanTitle = String(taskTitle || '').trim();
       if (!cleanTitle) return;
       const { error } = await db.from('family_todos').insert({ 
         text: cleanTitle, 
         points: points, 
-        created_by: getDisplayName(currentUser.email) 
+        created_by: getDisplayName(currentUser.email),
+        urgent: isUrgent
       });
       if (error) return showToast('Fehler beim Speichern: ' + error.message, true);
       closeTodoModal();
@@ -637,18 +701,24 @@
         container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">Keine offenen To-Dos.</p>`;
         return;
       }
-      container.innerHTML = todos.map(t => `
-        <div class="flex items-start justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-xs gap-2">
-          <div class="flex-1 min-w-0 pr-1">
-            <span class="text-slate-200 font-medium block break-words">${escapeHtml(t.text)}</span>
-            <span class="text-[10px] text-emerald-400 mt-0.5 block">+${t.points} Pkt (von ${escapeHtml(t.created_by)})</span>
+      container.innerHTML = todos.map(t => {
+        const isUrg = t.urgent;
+        return `
+          <div class="flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 ${isUrg ? 'bg-red-950/30 border-red-500/40' : 'bg-slate-900/60 border-slate-800'}">
+            <div class="flex-1 min-w-0 pr-1">
+              <div class="flex items-center gap-1.5">
+                ${isUrg ? '<span class="text-[10px] bg-red-500/20 text-red-300 px-1.5 py-0.2 rounded font-bold">Dringend</span>' : ''}
+                <span class="text-slate-200 font-medium block break-words">${escapeHtml(t.text)}</span>
+              </div>
+              <span class="text-[10px] text-emerald-400 mt-0.5 block">+${t.points} Pkt (von ${escapeHtml(t.created_by)})</span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0 pt-0.5">
+              <button type="button" onclick="completeTodo(event, '${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${t.points})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
+              <button type="button" onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
+            </div>
           </div>
-          <div class="flex items-center gap-1 shrink-0 pt-0.5">
-            <button type="button" onclick="completeTodo(event, '${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${t.points})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
-            <button type="button" onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     async function nextRotationPerson() {
@@ -688,10 +758,28 @@
       if (!message) return;
       await db.from('family_chat').insert([{
         user_name: getDisplayName(currentUser.email),
-        message: message
+        message: message,
+        reactions: {}
       }]);
       input.value = '';
     });
+
+    async function addReaction(messageId, emoji, currentReactions) {
+      const reactions = currentReactions || {};
+      const userName = getDisplayName(currentUser.email);
+      
+      // Toggle reaction for current user
+      if (!reactions[emoji]) reactions[emoji] = [];
+      const idx = reactions[emoji].indexOf(userName);
+      if (idx > -1) {
+        reactions[emoji].splice(idx, 1);
+        if (reactions[emoji].length === 0) delete reactions[emoji];
+      } else {
+        reactions[emoji].push(userName);
+      }
+
+      await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
+    }
 
     function renderChat() {
       const container = document.getElementById('chat-messages');
@@ -701,13 +789,30 @@
           const d = new Date(m.created_at);
           timeString = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         }
+
+        const reactions = m.reactions || {};
+        const availableEmojis = ['👍', '❤️', '😂', '🔥', '👏'];
+        const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
+          const hasVoted = users.includes(getDisplayName(currentUser?.email));
+          return `<button onclick="addReaction('${m.id}', '${emoji}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-[10px] px-1.5 py-0.5 rounded-md ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300' : 'bg-slate-800/80 text-slate-300'}">${emoji} ${users.length}</button>`;
+        }).join('');
+
         return `
-          <div class="flex items-baseline justify-between gap-2 bg-slate-900/40 p-1.5 rounded-lg">
-            <div>
-              <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
-              <span class="text-slate-300 ml-1">${escapeHtml(m.message)}</span>
+          <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-800/80">
+            <div class="flex items-baseline justify-between gap-2 mb-1">
+              <div>
+                <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
+                <span class="text-slate-300 ml-1 break-words">${escapeHtml(m.message)}</span>
+              </div>
+              <span class="text-[10px] text-slate-500 shrink-0">${timeString}</span>
             </div>
-            <span class="text-[10px] text-slate-500 shrink-0">${timeString}</span>
+            
+            <div class="flex items-center gap-1.5 flex-wrap mt-1.5 pt-1 border-t border-slate-800/50">
+              ${reactionsHtml}
+              <div class="flex gap-1">
+                ${availableEmojis.map(emo => `<button onclick="addReaction('${m.id}', '${emo}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-[11px] opacity-60 hover:opacity-100 px-1 py-0.2 transition"><span>${emo}</span></button>`).join('')}
+              </div>
+            </div>
           </div>
         `;
       }).join('');
@@ -725,8 +830,11 @@
       allTasks.forEach(t => allMembersSet.add(t.user_name));
 
       const monthlyScores = {};
+      const monthlyStreaks = {};
+      
       allMembersSet.forEach(name => {
         monthlyScores[name] = 0;
+        monthlyStreaks[name] = new Set();
       });
 
       allTasks.forEach(t => {
@@ -734,24 +842,37 @@
         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
           if (monthlyScores[t.user_name] === undefined) monthlyScores[t.user_name] = 0;
           monthlyScores[t.user_name] += t.points;
+          
+          const dayStr = d.toISOString().split('T')[0];
+          if (!monthlyStreaks[t.user_name]) monthlyStreaks[t.user_name] = new Set();
+          monthlyStreaks[t.user_name].add(dayStr);
         }
       });
 
       const sorted = Object.entries(monthlyScores)
-        .map(([name, points]) => ({ name, points }))
+        .map(([name, points]) => ({ name, points, streak: monthlyStreaks[name] ? monthlyStreaks[name].size : 0 }))
         .sort((a, b) => b.points - a.points);
 
       const container = document.getElementById('leaderboard-list');
       const medals = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅', '🏅'];
-      
+      const isFirstDay = now.getDate() === 1;
+
       container.innerHTML = sorted.map((entry, idx) => {
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0 && entry.points > 0;
+        const showCrown = isFirst && isFirstDay;
+        
         return `
           <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
             <div class="flex items-center gap-3">
               <span class="text-xl w-7 text-center font-bold">${medal}</span>
-              <span class="font-bold text-base ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-base ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
+                  ${showCrown ? '<span title="Monatssieger!" class="text-sm">👑</span>' : ''}
+                </div>
+                <span class="text-[11px] text-amber-400 font-medium">🔥 ${entry.streak} Tage aktiv (Monat)</span>
+              </div>
             </div>
             <div class="text-right">
               <span class="text-lg font-extrabold text-emerald-400">${entry.points}</span>
