@@ -60,7 +60,7 @@
     }
   </style>
 </head>
-<body class="antialiased selection:bg-emerald-500 selection:text-white">
+<body class="antialiased selection:bg-emerald-500 selection:text-white" onclick="handleBodyClick(event)">
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
@@ -81,30 +81,22 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.3)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.4)</h3>
       </div>
-      <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Erweiterungen für euch:</p>
+      <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Verbesserungen:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Monatliche Streaks (Serien):</b> Sieht genau, wer wie oft an aufeinanderfolgenden Tagen aktiv war (resettet monatlich).</span>
+          <span class="text-slate-200"><b>Streaks erst ab 2 Tagen:</b> Die Flammen-Anzeige erscheint jetzt ab einer Serie von mindestens 2 aufeinanderfolgenden Tagen.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Krone für den Monatssieger:</b> Am 1. des Monats wird der Sieger feierlich mit einer Krone ausgezeichnet!</span>
+          <span class="text-slate-200"><b>Chat-Reaktionen per Klick:</b> Klicke einfach auf eine Nachricht im Chat, um ein Emoji auszuwählen oder zu reagieren!</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Dringend-Markierung für To-Dos:</b> Kleine Checkbox beim Erstellen, um wichtige Aufgaben hervorzuheben.</span>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Familien-Leitspruch:</b> Ein dezent verblasster Schmuck-Spruch im Header.</span>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Mini-Reaktionen im Chat:</b> Mit Emojis direkt auf Nachrichten antworten!</span>
+          <span class="text-slate-200"><b>Bereinigt:</b> Dringend-Markierung wurde komplett entfernt, um alles super flüssig und einfach zu halten.</span>
         </div>
       </div>
 
@@ -131,22 +123,16 @@
       </div>
       <p id="todo-modal-desc" class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
       
-      <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben + DRINGEND CHECKBOX -->
+      <!-- Optionales Eingabefeld für Eigene Aufgaben oder Zimmerangaben -->
       <div id="todo-extra-input-container" class="mb-4 hidden">
         <div class="flex justify-between items-center mb-1.5">
           <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400"></label>
           <button type="button" onclick="resetTodoSelection()" class="text-[11px] text-slate-400 hover:text-white underline">← Abbrechen</button>
         </div>
-        <div class="space-y-3">
+        <div class="flex gap-2">
           <input type="text" id="todo-extra-input" placeholder="..."
             class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
-          
-          <label class="flex items-center gap-2 cursor-pointer select-none">
-            <input type="checkbox" id="todo-urgent-checkbox" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-red-500 focus:ring-0">
-            <span class="text-xs text-red-400 font-medium">🚨 Als dringend markieren</span>
-          </label>
-
-          <button type="button" id="todo-confirm-btn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl">Hinzufügen</button>
+          <button type="button" id="todo-confirm-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
         </div>
       </div>
 
@@ -310,7 +296,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.3';
+    const CURRENT_VERSION = '1.4';
 
     const TASK_CATEGORIES = [
       { title: '🍳 Beim Essen bereiten helfen', points: 25 },
@@ -352,6 +338,7 @@
     let chatMessages = [];
     let todos = [];
     let currentRotation = { current_person: 'Osman', id: null };
+    let activeReactionPopupId = null;
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
@@ -462,13 +449,11 @@
       checkMonthlyWinner();
     }
 
-    // PRÜFEN OB HEUTE DER 1. DES MONATS IST -> MONATSSIEGER ANZEIGEN
     function checkMonthlyWinner() {
       const now = new Date();
       if (now.getDate() === 1) {
         const lastMonthKey = `winner_shown_${now.getFullYear()}_${now.getMonth()}`;
         if (!localStorage.getItem(lastMonthKey)) {
-          // Berechne Sieger des Vormonats
           const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
           const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
           
@@ -542,7 +527,6 @@
     function resetTodoSelection() {
       document.getElementById('todo-extra-input-container').classList.add('hidden');
       document.getElementById('todo-extra-input').value = '';
-      document.getElementById('todo-urgent-checkbox').checked = false;
       document.getElementById('todo-modal-desc').style.display = 'block';
       renderTodoSelectorModal();
     }
@@ -595,21 +579,19 @@
         return;
       }
 
-      addTodoItem(title, points, false);
+      addTodoItem(title, points);
     }
 
     async function confirmCustomTodo(points) {
       const inputVal = document.getElementById('todo-extra-input').value.trim();
-      const isUrgent = document.getElementById('todo-urgent-checkbox').checked;
       if (!inputVal) return showToast('Bitte gib eine Aufgabe ein!', true);
-      await addTodoItem('✨ ' + inputVal, points, isUrgent);
+      await addTodoItem('✨ ' + inputVal, points);
     }
 
     async function confirmExtraTodo(baseTitle, points) {
       const roomVal = document.getElementById('todo-extra-input').value.trim();
-      const isUrgent = document.getElementById('todo-urgent-checkbox').checked;
       const finalTitle = roomVal ? `${baseTitle} (${roomVal})` : baseTitle;
-      await addTodoItem(finalTitle, points, isUrgent);
+      await addTodoItem(finalTitle, points);
     }
 
     async function loadAllData() {
@@ -671,14 +653,13 @@
       showToast(`+${points} Points für ${userName}!`);
     }
 
-    async function addTodoItem(taskTitle, points, isUrgent) {
+    async function addTodoItem(taskTitle, points) {
       const cleanTitle = String(taskTitle || '').trim();
       if (!cleanTitle) return;
       const { error } = await db.from('family_todos').insert({ 
         text: cleanTitle, 
         points: points, 
-        created_by: getDisplayName(currentUser.email),
-        urgent: isUrgent
+        created_by: getDisplayName(currentUser.email)
       });
       if (error) return showToast('Fehler beim Speichern: ' + error.message, true);
       closeTodoModal();
@@ -702,14 +683,10 @@
         return;
       }
       container.innerHTML = todos.map(t => {
-        const isUrg = t.urgent;
         return `
-          <div class="flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 ${isUrg ? 'bg-red-950/30 border-red-500/40' : 'bg-slate-900/60 border-slate-800'}">
+          <div class="flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 bg-slate-900/60 border-slate-800">
             <div class="flex-1 min-w-0 pr-1">
-              <div class="flex items-center gap-1.5">
-                ${isUrg ? '<span class="text-[10px] bg-red-500/20 text-red-300 px-1.5 py-0.2 rounded font-bold">Dringend</span>' : ''}
-                <span class="text-slate-200 font-medium block break-words">${escapeHtml(t.text)}</span>
-              </div>
+              <span class="text-slate-200 font-medium block break-words">${escapeHtml(t.text)}</span>
               <span class="text-[10px] text-emerald-400 mt-0.5 block">+${t.points} Pkt (von ${escapeHtml(t.created_by)})</span>
             </div>
             <div class="flex items-center gap-1 shrink-0 pt-0.5">
@@ -764,11 +741,11 @@
       input.value = '';
     });
 
-    async function addReaction(messageId, emoji, currentReactions) {
+    async function toggleReaction(event, messageId, emoji, currentReactions) {
+      event.stopPropagation();
       const reactions = currentReactions || {};
       const userName = getDisplayName(currentUser.email);
       
-      // Toggle reaction for current user
       if (!reactions[emoji]) reactions[emoji] = [];
       const idx = reactions[emoji].indexOf(userName);
       if (idx > -1) {
@@ -779,6 +756,30 @@
       }
 
       await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
+      closeReactionPopup();
+    }
+
+    function handleMessageClick(event, messageId) {
+      event.stopPropagation();
+      if (activeReactionPopupId === messageId) {
+        closeReactionPopup();
+      } else {
+        activeReactionPopupId = messageId;
+        renderChat();
+      }
+    }
+
+    function closeReactionPopup() {
+      if (activeReactionPopupId !== null) {
+        activeReactionPopupId = null;
+        renderChat();
+      }
+    }
+
+    function handleBodyClick(event) {
+      if (activeReactionPopupId !== null) {
+        closeReactionPopup();
+      }
     }
 
     function renderChat() {
@@ -792,13 +793,16 @@
 
         const reactions = m.reactions || {};
         const availableEmojis = ['👍', '❤️', '😂', '🔥', '👏'];
+        
         const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
           const hasVoted = users.includes(getDisplayName(currentUser?.email));
-          return `<button onclick="addReaction('${m.id}', '${emoji}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-[10px] px-1.5 py-0.5 rounded-md ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300' : 'bg-slate-800/80 text-slate-300'}">${emoji} ${users.length}</button>`;
+          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-[10px] px-1.5 py-0.5 rounded-md ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300' : 'bg-slate-800/80 text-slate-300'}">${emoji} ${users.length}</button>`;
         }).join('');
 
+        const isPopupOpen = activeReactionPopupId === m.id;
+
         return `
-          <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-800/80">
+          <div onclick="handleMessageClick(event, '${m.id}')" class="relative bg-slate-900/50 p-2 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
             <div class="flex items-baseline justify-between gap-2 mb-1">
               <div>
                 <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
@@ -807,12 +811,17 @@
               <span class="text-[10px] text-slate-500 shrink-0">${timeString}</span>
             </div>
             
-            <div class="flex items-center gap-1.5 flex-wrap mt-1.5 pt-1 border-t border-slate-800/50">
-              ${reactionsHtml}
-              <div class="flex gap-1">
-                ${availableEmojis.map(emo => `<button onclick="addReaction('${m.id}', '${emo}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-[11px] opacity-60 hover:opacity-100 px-1 py-0.2 transition"><span>${emo}</span></button>`).join('')}
+            ${Object.keys(reactions).length > 0 ? `
+              <div class="flex items-center gap-1.5 flex-wrap mt-1.5 pt-1 border-t border-slate-800/50">
+                ${reactionsHtml}
               </div>
-            </div>
+            ` : ''}
+
+            ${isPopupOpen ? `
+              <div class="absolute bottom-full left-0 mb-1 z-20 bg-slate-800 border border-slate-700 p-2 rounded-xl shadow-2xl flex gap-1.5 fade-in" onclick="event.stopPropagation()">
+                ${availableEmojis.map(emo => `<button onclick="toggleReaction(event, '${m.id}', '${emo}', ${JSON.stringify(reactions).replace(/"/g, '&quot;')})" class="text-base hover:scale-125 px-1.5 py-0.5 transition"><span>${emo}</span></button>`).join('')}
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -861,6 +870,8 @@
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0 && entry.points > 0;
         const showCrown = isFirst && isFirstDay;
+        // ERST AB 2 TAGEN DIE FLAMME ANZEIGEN
+        const showStreak = entry.streak >= 2;
         
         return `
           <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
@@ -871,7 +882,7 @@
                   <span class="font-bold text-base ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
                   ${showCrown ? '<span title="Monatssieger!" class="text-sm">👑</span>' : ''}
                 </div>
-                <span class="text-[11px] text-amber-400 font-medium">🔥 ${entry.streak} Tage aktiv (Monat)</span>
+                ${showStreak ? `<span class="text-[11px] text-amber-400 font-medium">🔥 ${entry.streak} Tage aktiv (Monat)</span>` : ''}
               </div>
             </div>
             <div class="text-right">
