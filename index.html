@@ -262,7 +262,7 @@
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
@@ -387,7 +387,7 @@
         extraInput.placeholder = 'z. B. Blumen gegossen...';
         extraContainer.classList.remove('hidden');
         document.getElementById('todo-modal-desc').style.display = 'none';
-        document.getElementById('todo-selection-list').innerHTML = ''; // Liste ausblenden bei Eingabe
+        document.getElementById('todo-selection-list').innerHTML = '';
         extraInput.value = '';
         extraInput.focus();
         confirmBtn.onclick = () => confirmCustomTodo(points);
@@ -399,7 +399,7 @@
         extraInput.placeholder = 'z. B. Wohnzimmer & Flur (optional)...';
         extraContainer.classList.remove('hidden');
         document.getElementById('todo-modal-desc').style.display = 'none';
-        document.getElementById('todo-selection-list').innerHTML = ''; // Liste ausblenden bei Eingabe
+        document.getElementById('todo-selection-list').innerHTML = '';
         extraInput.value = '';
         extraInput.focus();
         confirmBtn.onclick = () => confirmExtraTodo(title, points);
@@ -480,9 +480,16 @@
     }
 
     async function addTodoItem(taskTitle, points) {
-      await db.from('family_todos').insert({ text: taskTitle, points: points, created_by: getDisplayName(currentUser.email) });
+      const cleanTitle = String(taskTitle || '').trim();
+      if (!cleanTitle) return;
+      const { error } = await db.from('family_todos').insert({ 
+        text: cleanTitle, 
+        points: points, 
+        created_by: getDisplayName(currentUser.email) 
+      });
+      if (error) return showToast('Fehler beim Speichern: ' + error.message, true);
       closeTodoModal();
-      showToast(`"${taskTitle}" zur To-Do-Liste hinzugefügt!`);
+      showToast(`"${cleanTitle}" zur To-Do-Liste hinzugefügt!`);
     }
 
     async function completeTodo(id, taskTitle, points) {
