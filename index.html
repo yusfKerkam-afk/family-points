@@ -64,7 +64,6 @@
       border: 1.5px solid rgba(148, 163, 184, 0.3);
       background: rgba(15, 23, 42, 0.8);
     }
-    /* Normale Rahmen */
     .frame-emerald {
       border: 2.5px solid #10b981;
       background: rgba(6, 78, 59, 0.6);
@@ -81,7 +80,6 @@
       border: 2.5px solid #a855f7;
       background: rgba(88, 28, 135, 0.6);
     }
-    /* Leuchtende Aura-Rahmen */
     .frame-neon-emerald {
       border: 2.5px solid #34d399;
       box-shadow: 0 0 12px rgba(52, 211, 153, 0.85), inset 0 0 6px rgba(52, 211, 153, 0.5);
@@ -108,7 +106,7 @@
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
-  <!-- MONATSSIEGER & COIN-AUSSCHÜTTUNG MODAL (Am 1. des Monats) -->
+  <!-- MONATSSIEGER & COIN-AUSSCHÜTTUNG MODAL -->
   <div id="winner-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-md p-7 rounded-3xl relative fade-in text-center border border-amber-400/50">
       <div class="text-5xl mb-3">👑</div>
@@ -132,7 +130,7 @@
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Profilbilder für alle:</b> Wähle im Shop kostenlos dein eigenes Tier- oder Emoji-Profilbild aus!</span>
+          <span class="text-slate-200"><b>Wer hat reagiert?:</b> Bei Chat-Reaktionen sieht man jetzt direkt unter dem Emoji, wer darauf reagiert hat!</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-400 font-bold">•</span>
@@ -140,7 +138,7 @@
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Avatar- & Rahmen-Shop:</b> Schalte dir leuchtende Aura-Rahmen, Blumen-Kränze oder VIP-Icons wie die Türkei-Flagge 🇹🇷 frei!</span>
+          <span class="text-slate-200"><b>Avatar- & Rahmen-Shop:</b> Schalte dir leuchtende Aura-Rahmen oder VIP-Icons wie die Türkei-Flagge 🇹🇷 frei!</span>
         </div>
       </div>
 
@@ -223,6 +221,7 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
           </span>
         </div>
+        <!-- SPRUCH MIT AKTUALISIERTEM "ile" -->
         <span class="text-[11px] text-slate-400/70 italic font-light tracking-wide sm:border-l sm:border-slate-700/60 sm:pl-3">
           "Niyetin hayır, başlangıcın Bismillah ile olsun."
         </span>
@@ -268,7 +267,7 @@
           <div id="todo-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </section>
 
-        <!-- CHAT MIT REAKTIONEN & AVATAREN -->
+        <!-- CHAT MIT REAKTIONEN & NAMENS-ANZEIGE -->
         <section class="glass rounded-3xl p-5 flex flex-col h-[340px]">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-3 text-xs"></div>
@@ -325,7 +324,7 @@
     </div>
   </div>
 
-  <!-- SHOP VIEW (EIGENE VOLLBILD-ANSICHT WIE EINE NEUE SEITE) -->
+  <!-- SHOP VIEW -->
   <div id="shop-view" class="hidden min-h-screen flex flex-col max-w-4xl mx-auto p-3 sm:p-6 fade-in">
     <!-- SHOP HEADER -->
     <div class="glass rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3 mb-6 sticky top-3 z-30">
@@ -340,7 +339,6 @@
       </div>
     </div>
 
-    <!-- AKTUELLE VORSCHAU DES EIGENEN PROFILBILDS -->
     <div class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
       <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block mb-3">Deine aktuelle Vorschau</span>
       <div id="shop-preview-avatar" class="mx-auto mb-3 flex items-center justify-center"></div>
@@ -348,7 +346,7 @@
       <p class="text-xs text-slate-400 mt-1">So sehen dich alle in der Bestenliste, im Chat und im Verlauf!</p>
     </div>
 
-    <!-- KATEGORIE 1: KOSTENLOSE BASIS-AVATARE -->
+    <!-- KATEGORIE 1: BASIS-AVATARE -->
     <section class="glass rounded-3xl p-5 mb-6">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm sm:text-base font-bold text-slate-100">🎭 Kostenlose Basis-Avatare</h3>
@@ -357,7 +355,7 @@
       <div id="shop-free-avatars" class="grid grid-cols-4 sm:grid-cols-7 gap-2.5"></div>
     </section>
 
-    <!-- KATEGORIE 2: LEUCHTENDE AURA-RAHMEN -->
+    <!-- KATEGORIE 2: AURA-RAHMEN -->
     <section class="glass rounded-3xl p-5 mb-6">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm sm:text-base font-bold text-amber-300">✨ Leuchtende Aura-Rahmen</h3>
@@ -366,7 +364,7 @@
       <div id="shop-glow-frames" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
     </section>
 
-    <!-- KATEGORIE 3: NORMALE PROFIL-RAHMEN -->
+    <!-- KATEGORIE 3: NORMALE RAHMEN -->
     <section class="glass rounded-3xl p-5 mb-6">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm sm:text-base font-bold text-emerald-300">🎨 Klassische Rahmen</h3>
@@ -375,7 +373,7 @@
       <div id="shop-normal-frames" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
     </section>
 
-    <!-- KATEGORIE 4: EXKLUSIVE VIP-AVATARE -->
+    <!-- KATEGORIE 4: VIP AVATARE -->
     <section class="glass rounded-3xl p-5 mb-8">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm sm:text-base font-bold text-purple-300">👑 Exklusive VIP-Avatare</h3>
@@ -409,7 +407,6 @@
     
     const CURRENT_VERSION = '1.5';
 
-    // SHOP-KATALOG DEFINITIONEN
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
     
     const VIP_AVATARS = [
@@ -473,11 +470,10 @@
     let allTasks = [];
     let chatMessages = [];
     let todos = [];
-    let userProfiles = {}; // Speichert { [userName]: { coins, avatar, frame, unlocked_items, last_reward_month } }
+    let userProfiles = {};
     let currentRotation = { current_person: 'Osman', id: null };
     let activeReactionPopupId = null;
 
-    // Hilfsfunktion: Rendert das Avatar-Icon inklusive Rahmen in verschiedenen Größen
     function renderAvatarBadge(userName, size = 'md') {
       const prof = userProfiles[userName] || { avatar: '👤', frame: 'none' };
       const avatar = prof.avatar || '👤';
@@ -558,7 +554,6 @@
       document.getElementById('confirm-modal').classList.add('hidden');
     }
 
-    // SHOP NAVIGATION (Wechsel zwischen Hauptansicht und Shop-Seite)
     function openShopView() {
       document.getElementById('app-view').classList.add('hidden');
       document.getElementById('shop-view').classList.remove('hidden');
@@ -616,7 +611,6 @@
       checkChangelog();
     }
 
-    // Stellt sicher, dass der eingeloggte Nutzer einen Eintrag in family_profiles hat
     async function ensureCurrentUserProfile() {
       const myName = getDisplayName(currentUser.email);
       if (!userProfiles[myName]) {
@@ -648,10 +642,9 @@
       `;
     }
 
-    // MONATS-SIEGER & AUTOMATISCHE COIN-VERGABE AM 1. DES MONATS (15 / 10 / 5 COINS)
     async function checkMonthlyRewards() {
       const now = new Date();
-      if (now.getDate() !== 1) return; // Nur am 1. des Monats ausführen
+      if (now.getDate() !== 1) return;
 
       const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
       const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
@@ -661,7 +654,6 @@
       const myProf = userProfiles[myName];
       if (!myProf || myProf.last_reward_month === rewardPeriodKey) return;
 
-      // Punkte des Vormonats berechnen
       const scores = {};
       allTasks.forEach(t => {
         const d = new Date(t.created_at);
@@ -679,7 +671,6 @@
       const coinPrizes = [15, 10, 5];
       let summaryHtml = `<p class="mb-3">Der letzte Monat ist vorbei! Hier sind die Gewinner und ihre Coin-Belohnungen:</p><div class="space-y-2 text-left bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800">`;
 
-      // Top 3 durchgehen und Coins gutschreiben (falls für diesen Monat noch nicht geschehen)
       for (let i = 0; i < Math.min(3, sorted.length); i++) {
         const [winnerName, pts] = sorted[i];
         const prize = coinPrizes[i];
@@ -692,7 +683,6 @@
           </div>
         `;
 
-        // Profil des Gewinners aktualisieren, falls noch nicht für diesen Monat belohnt
         let wProf = userProfiles[winnerName];
         if (!wProf) {
           wProf = { user_name: winnerName, coins: 0, avatar: '👤', frame: 'none', unlocked_items: [...FREE_AVATARS, 'none'], last_reward_month: '' };
@@ -711,7 +701,6 @@
       }
       summaryHtml += `</div>`;
 
-      // Auch beim aktuell eingeloggten Nutzer den Monat als gesehen markieren (falls er nicht Top 3 war)
       if (myProf.last_reward_month !== rewardPeriodKey) {
         await db.from('family_profiles')
           .update({ last_reward_month: rewardPeriodKey })
@@ -724,7 +713,6 @@
       document.getElementById('winner-modal').classList.remove('hidden');
     }
 
-    // SHOP LOGIK & RENDERING
     function renderShop() {
       const myName = getDisplayName(currentUser.email);
       const prof = userProfiles[myName] || { coins: 0, avatar: '👤', frame: 'none', unlocked_items: [...FREE_AVATARS, 'none'] };
@@ -734,7 +722,6 @@
       document.getElementById('shop-preview-avatar').innerHTML = renderAvatarBadge(myName, 'xl');
       document.getElementById('shop-preview-name').textContent = myName;
 
-      // 1. Kostenlose Basis-Avatare
       document.getElementById('shop-free-avatars').innerHTML = FREE_AVATARS.map(emo => {
         const isEquipped = prof.avatar === emo;
         return `
@@ -745,13 +732,9 @@
         `;
       }).join('');
 
-      // 2. Leuchtende Aura-Rahmen
       document.getElementById('shop-glow-frames').innerHTML = GLOW_FRAMES.map(item => renderFrameShopCard(item, prof, unlocked)).join('');
-
-      // 3. Normale Rahmen
       document.getElementById('shop-normal-frames').innerHTML = NORMAL_FRAMES.map(item => renderFrameShopCard(item, prof, unlocked)).join('');
 
-      // 4. VIP-Avatare
       document.getElementById('shop-vip-avatars').innerHTML = VIP_AVATARS.map(item => {
         const isUnlocked = unlocked.includes(item.id);
         const isEquipped = prof.avatar === item.id;
@@ -970,7 +953,6 @@
     }
 
     async function loadAllData() {
-      // 1. Profile laden (Avatare, Rahmen & Coins)
       const { data: profilesData } = await db.from('family_profiles').select('*');
       userProfiles = {};
       (profilesData || []).forEach(p => {
@@ -978,13 +960,11 @@
       });
       updateHeaderUserUI();
 
-      // 2. Aufgaben laden
       const { data: tasksData } = await db.from('family_tasks').select('*').order('created_at', { ascending: false });
       allTasks = tasksData || [];
       renderLeaderboard();
       renderActivityFeed();
 
-      // 3. Chat laden
       const { data: chatData } = await db.from('family_chat').select('*').order('created_at', { ascending: true }).limit(50);
       chatMessages = (chatData || []).map(m => {
         if (!m.reactions || typeof m.reactions !== 'object') m.reactions = {};
@@ -992,12 +972,10 @@
       });
       renderChat();
 
-      // 4. To-Dos laden
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
       todos = todoData || [];
       renderTodos();
 
-      // 5. Dienstplan laden
       const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
         currentRotation = rotData[0];
@@ -1007,7 +985,6 @@
       }
       renderRotation();
 
-      // Falls Shop offen ist, auch dort neu zeichnen
       if (!document.getElementById('shop-view').classList.contains('hidden')) {
         renderShop();
       }
@@ -1204,9 +1181,11 @@
         const reactions = m.reactions || {};
         const availableEmojis = ['👍', '❤️', '😂', '🔥', '👏'];
         
+        // REAKTIONEN MIT NAMENS-ANZEIGE (TOOLTIP / TEXT)
         const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
           const hasVoted = users.includes(getDisplayName(currentUser?.email));
-          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" class="text-[10px] px-1.5 py-0.5 rounded-md flex items-center gap-1 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span></button>`;
+          const namesList = users.join(', '); // Zeigt z.B. "Yusuf, Esma"
+          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" title="Reagiert von: ${namesList}" class="text-[10px] px-2 py-0.5 rounded-md flex items-center gap-1.5 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span><span class="text-[9px] text-slate-400 font-normal">(${namesList})</span></button>`;
         }).join('');
 
         const isPopupOpen = activeReactionPopupId === m.id;
