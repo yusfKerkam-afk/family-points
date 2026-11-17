@@ -581,7 +581,7 @@
         initApp(session.user);
       } else {
         currentUser = null;
-        document.getElementById('auth-view').classList.add('hidden');
+        document.getElementById('auth-view').classList.remove('hidden');
         document.getElementById('app-view').classList.add('hidden');
         document.getElementById('shop-view').classList.add('hidden');
       }
