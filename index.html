@@ -28,7 +28,7 @@
       border: 1px solid rgba(255, 255, 255, 0.14);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     }
-    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    .fade-in { animation: fadeIn 0.25s ease-out forwards; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -58,20 +58,64 @@
       text-shadow: 0 2px 10px rgba(0,0,0,0.8);
       animation: floatUp 1s ease-out forwards;
     }
+
+    /* AVATAR RAHMEN STYLES */
+    .frame-none {
+      border: 1.5px solid rgba(148, 163, 184, 0.3);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    /* Normale Rahmen */
+    .frame-emerald {
+      border: 2.5px solid #10b981;
+      background: rgba(6, 78, 59, 0.6);
+    }
+    .frame-flower {
+      border: 2.5px solid #f472b6;
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.25), rgba(192, 132, 252, 0.25));
+    }
+    .frame-ocean {
+      border: 2.5px solid #38bdf8;
+      background: rgba(12, 74, 110, 0.6);
+    }
+    .frame-royal {
+      border: 2.5px solid #a855f7;
+      background: rgba(88, 28, 135, 0.6);
+    }
+    /* Leuchtende Aura-Rahmen */
+    .frame-neon-emerald {
+      border: 2.5px solid #34d399;
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.85), inset 0 0 6px rgba(52, 211, 153, 0.5);
+      background: rgba(6, 78, 59, 0.8);
+    }
+    .frame-gold-glow {
+      border: 2.5px solid #fbbf24;
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.9), inset 0 0 6px rgba(251, 191, 36, 0.5);
+      background: rgba(120, 53, 15, 0.7);
+    }
+    .frame-pink-glow {
+      border: 2.5px solid #f472b6;
+      box-shadow: 0 0 14px rgba(244, 114, 182, 0.9), inset 0 0 6px rgba(244, 114, 182, 0.5);
+      background: rgba(131, 24, 67, 0.6);
+    }
+    .frame-fire-glow {
+      border: 2.5px solid #f97316;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.95), 0 0 6px rgba(249, 115, 22, 0.8);
+      background: rgba(124, 45, 18, 0.8);
+    }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white" onclick="handleBodyClick(event)">
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
-  <!-- MONATSSIEGER / KRÖNUNGS-MODAL (Am 1. des Monats) -->
+  <!-- MONATSSIEGER & COIN-AUSSCHÜTTUNG MODAL (Am 1. des Monats) -->
   <div id="winner-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="glass-card w-full max-w-md p-8 rounded-3xl relative fade-in text-center border border-amber-400/50">
+    <div class="glass-card w-full max-w-md p-7 rounded-3xl relative fade-in text-center border border-amber-400/50">
       <div class="text-5xl mb-3">👑</div>
-      <h3 class="text-xl font-extrabold text-amber-300 mb-2">Monatssieger geehrt!</h3>
-      <p id="winner-text" class="text-sm text-slate-200 mb-6 font-medium"></p>
+      <h3 class="text-xl font-extrabold text-amber-300 mb-2">Monats-Siegerehrung & Coins!</h3>
+      <div id="winner-text" class="text-xs sm:text-sm text-slate-200 mb-6 space-y-2"></div>
       <button onclick="closeWinnerModal()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-amber-500/30">
-        In den neuen Monat starten! 🚀
+        Coins einsammeln & weiter geht's! 🚀
       </button>
     </div>
   </div>
@@ -81,27 +125,27 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Was ist neu in FamilyPoints? (v1.4)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Neu: Avatare, Coins & Shop! (v1.5)</h3>
       </div>
-      <p class="text-xs text-slate-300 mb-4">Hier sind die neuesten Verbesserungen:</p>
+      <p class="text-xs text-slate-300 mb-4">Das ist neu in eurer Familien-App:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Streaks erst ab 2 Tagen:</b> Die Flammen-Anzeige erscheint jetzt ab einer Serie von mindestens 2 aufeinanderfolgenden Tagen.</span>
+          <span class="text-slate-200"><b>Profilbilder für alle:</b> Wähle im Shop kostenlos dein eigenes Tier- oder Emoji-Profilbild aus!</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-amber-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Monatliche Coins (🪙):</b> Am Monatsende gibt es für Platz 1 (<b>15 Coins</b>), Platz 2 (<b>10 Coins</b>) und Platz 3 (<b>5 Coins</b>).</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Chat-Reaktionen per Klick:</b> Klicke einfach auf eine Nachricht im Chat, um ein Emoji auszuwählen oder zu reagieren!</span>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Bereinigt:</b> Dringend-Markierung wurde komplett entfernt, um alles super flüssig und einfach zu halten.</span>
+          <span class="text-slate-200"><b>Avatar- & Rahmen-Shop:</b> Schalte dir leuchtende Aura-Rahmen, Blumen-Kränze oder VIP-Icons wie die Türkei-Flagge 🇹🇷 frei!</span>
         </div>
       </div>
 
       <button onclick="closeChangelog()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs shadow-lg shadow-emerald-600/30 transition">
-        Alles klar, verstanden! 👍
+        Mega, direkt anschauen! 👍
       </button>
     </div>
   </div>
@@ -109,7 +153,7 @@
   <!-- PROFIL MODAL -->
   <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-lg p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
-      <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
+      <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg px-2.5 py-1 bg-slate-800 rounded-xl">✕</button>
       <div id="profile-content"></div>
     </div>
   </div>
@@ -167,9 +211,9 @@
     </div>
   </div>
 
-  <!-- MAIN APP VIEW -->
+  <!-- MAIN APP VIEW (HAUPTANSICHT) -->
   <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3 sm:p-6">
-    <!-- HEADER MIT SPRUCH (Mobil & Desktop sichtbar) -->
+    <!-- HEADER -->
     <header class="glass rounded-2xl px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 mb-6">
       <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
         <div class="flex items-center gap-2.5">
@@ -183,12 +227,21 @@
           "Niyetin hayır, başlangıcın Bismillah ile olsun."
         </span>
       </div>
+      
       <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <button onclick="openChangelog()" class="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1">
-          <span>🚀</span> Was ist neu?
+        <!-- SHOP BUTTON & COINS -->
+        <button onclick="openShopView()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 hover:from-amber-500/30 hover:to-emerald-500/30 text-amber-300 border border-amber-400/40 transition flex items-center gap-1.5 shadow-sm">
+          <span>🛍️ Shop</span>
+          <span class="bg-slate-900/80 px-1.5 py-0.5 rounded-md text-[11px] text-amber-200" id="header-coins">0 🪙</span>
         </button>
-        <span id="current-user-badge" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800 text-emerald-300"></span>
-        <button onclick="logout()" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+
+        <button onclick="openChangelog()" class="text-[11px] font-medium px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition">
+          🚀 Neu
+        </button>
+
+        <div id="current-user-badge" onclick="openProfile(getDisplayName(currentUser.email))" class="cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 transition"></div>
+
+        <button onclick="logout()" class="text-xs px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
           Abmelden
         </button>
       </div>
@@ -196,7 +249,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- LINKS: To-Do-Liste & Chat -->
+      <!-- LINKS: Dienstplan, To-Do-Liste & Chat -->
       <div class="lg:col-span-3 space-y-6">
         
         <!-- ROTATIONS-DIENSTPLAN -->
@@ -215,8 +268,8 @@
           <div id="todo-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </section>
 
-        <!-- CHAT MIT REAKTIONEN -->
-        <section class="glass rounded-3xl p-5 flex flex-col h-[320px]">
+        <!-- CHAT MIT REAKTIONEN & AVATAREN -->
+        <section class="glass rounded-3xl p-5 flex flex-col h-[340px]">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-3 text-xs"></div>
           <form id="chat-form" class="flex gap-2">
@@ -232,7 +285,7 @@
         <section class="glass-card rounded-3xl p-6">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold flex items-center gap-2">🥇 Familien-Bestenliste</h2>
-            <span class="text-xs text-slate-400">Monatlich (Auto-Reset)</span>
+            <span class="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">Top 3 = Coins 🪙</span>
           </div>
           <div id="leaderboard-list" class="space-y-3"></div>
         </section>
@@ -272,6 +325,66 @@
     </div>
   </div>
 
+  <!-- SHOP VIEW (EIGENE VOLLBILD-ANSICHT WIE EINE NEUE SEITE) -->
+  <div id="shop-view" class="hidden min-h-screen flex flex-col max-w-4xl mx-auto p-3 sm:p-6 fade-in">
+    <!-- SHOP HEADER -->
+    <div class="glass rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3 mb-6 sticky top-3 z-30">
+      <button onclick="closeShopView()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-1.5 transition">
+        <span>←</span> Zurück
+      </button>
+      <h1 class="text-base sm:text-lg font-extrabold tracking-tight flex items-center gap-1.5">
+        <span>🛍️</span> Avatar- & Rahmen-Shop
+      </h1>
+      <div class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs sm:text-sm">
+        <span id="shop-coins-balance">0</span> 🪙
+      </div>
+    </div>
+
+    <!-- AKTUELLE VORSCHAU DES EIGENEN PROFILBILDS -->
+    <div class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+      <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block mb-3">Deine aktuelle Vorschau</span>
+      <div id="shop-preview-avatar" class="mx-auto mb-3 flex items-center justify-center"></div>
+      <h2 id="shop-preview-name" class="text-lg font-bold text-white"></h2>
+      <p class="text-xs text-slate-400 mt-1">So sehen dich alle in der Bestenliste, im Chat und im Verlauf!</p>
+    </div>
+
+    <!-- KATEGORIE 1: KOSTENLOSE BASIS-AVATARE -->
+    <section class="glass rounded-3xl p-5 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm sm:text-base font-bold text-slate-100">🎭 Kostenlose Basis-Avatare</h3>
+        <span class="text-[11px] text-emerald-400 font-semibold">Gratis für alle</span>
+      </div>
+      <div id="shop-free-avatars" class="grid grid-cols-4 sm:grid-cols-7 gap-2.5"></div>
+    </section>
+
+    <!-- KATEGORIE 2: LEUCHTENDE AURA-RAHMEN -->
+    <section class="glass rounded-3xl p-5 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm sm:text-base font-bold text-amber-300">✨ Leuchtende Aura-Rahmen</h3>
+        <span class="text-[11px] text-slate-400">Mit Glow-Effekt</span>
+      </div>
+      <div id="shop-glow-frames" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+    </section>
+
+    <!-- KATEGORIE 3: NORMALE PROFIL-RAHMEN -->
+    <section class="glass rounded-3xl p-5 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm sm:text-base font-bold text-emerald-300">🎨 Klassische Rahmen</h3>
+        <span class="text-[11px] text-slate-400">20 Coins</span>
+      </div>
+      <div id="shop-normal-frames" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+    </section>
+
+    <!-- KATEGORIE 4: EXKLUSIVE VIP-AVATARE -->
+    <section class="glass rounded-3xl p-5 mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm sm:text-base font-bold text-purple-300">👑 Exklusive VIP-Avatare</h3>
+        <span class="text-[11px] text-slate-400">Seltene Icons</span>
+      </div>
+      <div id="shop-vip-avatars" class="grid grid-cols-2 sm:grid-cols-5 gap-3"></div>
+    </section>
+  </div>
+
   <!-- MODAL: Löschen -->
   <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-sm p-6 rounded-3xl relative fade-in border border-red-500/30 text-center">
@@ -294,7 +407,32 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.4';
+    const CURRENT_VERSION = '1.5';
+
+    // SHOP-KATALOG DEFINITIONEN
+    const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
+    
+    const VIP_AVATARS = [
+      { id: '🇹🇷', name: 'Türkei Flagge', price: 25 },
+      { id: '🦋', name: 'Schmetterling', price: 25 },
+      { id: '🦅', name: 'Stolzer Adler', price: 30 },
+      { id: '🐉', name: 'Feuer-Drache', price: 35 },
+      { id: '💎', name: 'Edel-Diamant', price: 40 }
+    ];
+
+    const NORMAL_FRAMES = [
+      { id: 'frame-emerald', name: 'Smaragd-Ring', price: 20 },
+      { id: 'frame-flower', name: 'Blüten-Kranz 🌸', price: 20 },
+      { id: 'frame-ocean', name: 'Ozean-Blau', price: 20 },
+      { id: 'frame-royal', name: 'Königs-Violett', price: 20 }
+    ];
+
+    const GLOW_FRAMES = [
+      { id: 'frame-neon-emerald', name: 'Neon-Smaragd Aura', price: 25 },
+      { id: 'frame-gold-glow', name: 'Gold-Glanz Aura', price: 30 },
+      { id: 'frame-pink-glow', name: 'Rosa Sternen-Glow 🌸', price: 30 },
+      { id: 'frame-fire-glow', name: 'Feuer-Ring 🔥', price: 35 }
+    ];
 
     const TASK_CATEGORIES = [
       { title: '🍳 Beim Essen bereiten helfen', points: 25 },
@@ -335,8 +473,24 @@
     let allTasks = [];
     let chatMessages = [];
     let todos = [];
+    let userProfiles = {}; // Speichert { [userName]: { coins, avatar, frame, unlocked_items, last_reward_month } }
     let currentRotation = { current_person: 'Osman', id: null };
     let activeReactionPopupId = null;
+
+    // Hilfsfunktion: Rendert das Avatar-Icon inklusive Rahmen in verschiedenen Größen
+    function renderAvatarBadge(userName, size = 'md') {
+      const prof = userProfiles[userName] || { avatar: '👤', frame: 'none' };
+      const avatar = prof.avatar || '👤';
+      const frameClass = prof.frame && prof.frame !== 'none' ? prof.frame : 'frame-none';
+
+      let sizeClasses = 'w-9 h-9 text-lg';
+      if (size === 'xs') sizeClasses = 'w-6 h-6 text-xs';
+      if (size === 'sm') sizeClasses = 'w-7 h-7 text-sm';
+      if (size === 'lg') sizeClasses = 'w-16 h-16 text-3xl';
+      if (size === 'xl') sizeClasses = 'w-20 h-20 text-4xl';
+
+      return `<div class="${sizeClasses} ${frameClass} rounded-full flex items-center justify-center shrink-0 select-none transition-all">${avatar}</div>`;
+    }
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
@@ -362,9 +516,7 @@
       el.style.top = `${y}px`;
       document.body.appendChild(el);
       
-      setTimeout(() => {
-        el.remove();
-      }, 1000);
+      setTimeout(() => el.remove(), 1000);
     }
 
     function escapeHtml(str) {
@@ -406,6 +558,20 @@
       document.getElementById('confirm-modal').classList.add('hidden');
     }
 
+    // SHOP NAVIGATION (Wechsel zwischen Hauptansicht und Shop-Seite)
+    function openShopView() {
+      document.getElementById('app-view').classList.add('hidden');
+      document.getElementById('shop-view').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      renderShop();
+    }
+
+    function closeShopView() {
+      document.getElementById('shop-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
@@ -431,48 +597,259 @@
         currentUser = null;
         document.getElementById('auth-view').classList.add('hidden');
         document.getElementById('app-view').classList.add('hidden');
+        document.getElementById('shop-view').classList.add('hidden');
       }
     });
 
     async function initApp(user) {
       currentUser = user;
       document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('shop-view').classList.add('hidden');
       document.getElementById('app-view').classList.remove('hidden');
-      document.getElementById('current-user-badge').textContent = '👤 ' + getDisplayName(currentUser.email);
+      
       renderCategories();
       resetTodoSelection();
       await loadAllData();
+      await ensureCurrentUserProfile();
+      await checkMonthlyRewards();
       subscribeToRealtime();
       checkChangelog();
-      checkMonthlyWinner();
     }
 
-    function checkMonthlyWinner() {
-      const now = new Date();
-      if (now.getDate() === 1) {
-        const lastMonthKey = `winner_shown_${now.getFullYear()}_${now.getMonth()}`;
-        if (!localStorage.getItem(lastMonthKey)) {
-          const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
-          const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-          
-          const scores = {};
-          allTasks.forEach(t => {
-            const d = new Date(t.created_at);
-            if (d.getMonth() === prevMonth && d.getFullYear() === prevYear) {
-              scores[t.user_name] = (scores[t.user_name] || 0) + t.points;
-            }
-          });
-          
-          const sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]);
-          if (sorted.length > 0) {
-            const winner = sorted[0][0];
-            const pts = sorted[0][1];
-            document.getElementById('winner-text').innerHTML = `Herzlichen Glückwunsch an <b>${escapeHtml(winner)}</b>! Du hast den letzten Monat mit fulminanten <b>${pts} Punkten</b> gewonnen und trägst heute stolz die Krone! 👑`;
-            document.getElementById('winner-modal').classList.remove('hidden');
-            localStorage.setItem(lastMonthKey, 'true');
-          }
+    // Stellt sicher, dass der eingeloggte Nutzer einen Eintrag in family_profiles hat
+    async function ensureCurrentUserProfile() {
+      const myName = getDisplayName(currentUser.email);
+      if (!userProfiles[myName]) {
+        const defaultProfile = {
+          user_name: myName,
+          coins: 0,
+          avatar: '👤',
+          frame: 'none',
+          unlocked_items: [...FREE_AVATARS, 'none'],
+          last_reward_month: ''
+        };
+        const { error } = await db.from('family_profiles').insert([defaultProfile]);
+        if (!error) {
+          userProfiles[myName] = defaultProfile;
         }
       }
+      updateHeaderUserUI();
+    }
+
+    function updateHeaderUserUI() {
+      if (!currentUser) return;
+      const myName = getDisplayName(currentUser.email);
+      const prof = userProfiles[myName] || { coins: 0, avatar: '👤', frame: 'none' };
+      
+      document.getElementById('header-coins').textContent = `${prof.coins} 🪙`;
+      document.getElementById('current-user-badge').innerHTML = `
+        ${renderAvatarBadge(myName, 'xs')}
+        <span>${escapeHtml(myName)}</span>
+      `;
+    }
+
+    // MONATS-SIEGER & AUTOMATISCHE COIN-VERGABE AM 1. DES MONATS (15 / 10 / 5 COINS)
+    async function checkMonthlyRewards() {
+      const now = new Date();
+      if (now.getDate() !== 1) return; // Nur am 1. des Monats ausführen
+
+      const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+      const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+      const rewardPeriodKey = `${prevYear}-${prevMonth + 1}`;
+
+      const myName = getDisplayName(currentUser.email);
+      const myProf = userProfiles[myName];
+      if (!myProf || myProf.last_reward_month === rewardPeriodKey) return;
+
+      // Punkte des Vormonats berechnen
+      const scores = {};
+      allTasks.forEach(t => {
+        const d = new Date(t.created_at);
+        if (d.getMonth() === prevMonth && d.getFullYear() === prevYear) {
+          scores[t.user_name] = (scores[t.user_name] || 0) + t.points;
+        }
+      });
+
+      const sorted = Object.entries(scores)
+        .filter(([_, pts]) => pts > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+      if (sorted.length === 0) return;
+
+      const coinPrizes = [15, 10, 5];
+      let summaryHtml = `<p class="mb-3">Der letzte Monat ist vorbei! Hier sind die Gewinner und ihre Coin-Belohnungen:</p><div class="space-y-2 text-left bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800">`;
+
+      // Top 3 durchgehen und Coins gutschreiben (falls für diesen Monat noch nicht geschehen)
+      for (let i = 0; i < Math.min(3, sorted.length); i++) {
+        const [winnerName, pts] = sorted[i];
+        const prize = coinPrizes[i];
+        const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : '🥉');
+
+        summaryHtml += `
+          <div class="flex justify-between items-center text-xs">
+            <span>${medal} <b>${escapeHtml(winnerName)}</b> (${pts} Pkt)</span>
+            <span class="text-amber-300 font-bold">+${prize} Coins 🪙</span>
+          </div>
+        `;
+
+        // Profil des Gewinners aktualisieren, falls noch nicht für diesen Monat belohnt
+        let wProf = userProfiles[winnerName];
+        if (!wProf) {
+          wProf = { user_name: winnerName, coins: 0, avatar: '👤', frame: 'none', unlocked_items: [...FREE_AVATARS, 'none'], last_reward_month: '' };
+          await db.from('family_profiles').insert([wProf]);
+        }
+
+        if (wProf.last_reward_month !== rewardPeriodKey) {
+          const newCoins = (wProf.coins || 0) + prize;
+          await db.from('family_profiles')
+            .update({ coins: newCoins, last_reward_month: rewardPeriodKey })
+            .eq('user_name', winnerName);
+          wProf.coins = newCoins;
+          wProf.last_reward_month = rewardPeriodKey;
+          userProfiles[winnerName] = wProf;
+        }
+      }
+      summaryHtml += `</div>`;
+
+      // Auch beim aktuell eingeloggten Nutzer den Monat als gesehen markieren (falls er nicht Top 3 war)
+      if (myProf.last_reward_month !== rewardPeriodKey) {
+        await db.from('family_profiles')
+          .update({ last_reward_month: rewardPeriodKey })
+          .eq('user_name', myName);
+        myProf.last_reward_month = rewardPeriodKey;
+      }
+
+      updateHeaderUserUI();
+      document.getElementById('winner-text').innerHTML = summaryHtml;
+      document.getElementById('winner-modal').classList.remove('hidden');
+    }
+
+    // SHOP LOGIK & RENDERING
+    function renderShop() {
+      const myName = getDisplayName(currentUser.email);
+      const prof = userProfiles[myName] || { coins: 0, avatar: '👤', frame: 'none', unlocked_items: [...FREE_AVATARS, 'none'] };
+      const unlocked = Array.isArray(prof.unlocked_items) ? prof.unlocked_items : [...FREE_AVATARS, 'none'];
+
+      document.getElementById('shop-coins-balance').textContent = prof.coins;
+      document.getElementById('shop-preview-avatar').innerHTML = renderAvatarBadge(myName, 'xl');
+      document.getElementById('shop-preview-name').textContent = myName;
+
+      // 1. Kostenlose Basis-Avatare
+      document.getElementById('shop-free-avatars').innerHTML = FREE_AVATARS.map(emo => {
+        const isEquipped = prof.avatar === emo;
+        return `
+          <button onclick="equipItem('avatar', '${emo}')" class="p-3 rounded-2xl border text-center transition flex flex-col items-center justify-center gap-1 ${isEquipped ? 'bg-emerald-500/20 border-emerald-400 shadow-md' : 'bg-slate-900/60 border-slate-800 hover:border-slate-600'}">
+            <span class="text-2xl sm:text-3xl">${emo}</span>
+            <span class="text-[10px] font-bold ${isEquipped ? 'text-emerald-300' : 'text-slate-400'}">${isEquipped ? 'Aktiv ✓' : 'Wählen'}</span>
+          </button>
+        `;
+      }).join('');
+
+      // 2. Leuchtende Aura-Rahmen
+      document.getElementById('shop-glow-frames').innerHTML = GLOW_FRAMES.map(item => renderFrameShopCard(item, prof, unlocked)).join('');
+
+      // 3. Normale Rahmen
+      document.getElementById('shop-normal-frames').innerHTML = NORMAL_FRAMES.map(item => renderFrameShopCard(item, prof, unlocked)).join('');
+
+      // 4. VIP-Avatare
+      document.getElementById('shop-vip-avatars').innerHTML = VIP_AVATARS.map(item => {
+        const isUnlocked = unlocked.includes(item.id);
+        const isEquipped = prof.avatar === item.id;
+
+        let btnHtml = '';
+        if (isEquipped) {
+          btnHtml = `<span class="w-full py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-[11px] block">Aktiv ✓</span>`;
+        } else if (isUnlocked) {
+          btnHtml = `<button onclick="equipItem('avatar', '${item.id}')" class="w-full py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px] transition">Ausrüsten</button>`;
+        } else {
+          btnHtml = `<button onclick="buyShopItem('avatar', '${item.id}', ${item.price}, '${escapeHtml(item.name)}')" class="w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] transition">${item.price} 🪙 Kaufen</button>`;
+        }
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-slate-900/70 border ${isEquipped ? 'border-emerald-400' : 'border-slate-800'} flex flex-col items-center text-center justify-between gap-2">
+            <span class="text-3xl sm:text-4xl mt-1">${item.id}</span>
+            <span class="text-xs font-bold text-slate-200">${escapeHtml(item.name)}</span>
+            ${btnHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderFrameShopCard(item, prof, unlocked) {
+      const isUnlocked = unlocked.includes(item.id);
+      const isEquipped = prof.frame === item.id;
+      const currentAvatar = prof.avatar || '👤';
+
+      let btnHtml = '';
+      if (isEquipped) {
+        btnHtml = `<button onclick="equipItem('frame', 'none')" class="w-full py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-[11px]">Aktiv ✓ (Ablegen)</button>`;
+      } else if (isUnlocked) {
+        btnHtml = `<button onclick="equipItem('frame', '${item.id}')" class="w-full py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px] transition">Anlegen</button>`;
+      } else {
+        btnHtml = `<button onclick="buyShopItem('frame', '${item.id}', ${item.price}, '${escapeHtml(item.name)}')" class="w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] transition">${item.price} 🪙 Kaufen</button>`;
+      }
+
+      return `
+        <div class="p-3.5 rounded-2xl bg-slate-900/70 border ${isEquipped ? 'border-emerald-400' : 'border-slate-800'} flex flex-col items-center text-center justify-between gap-2.5">
+          <div class="w-12 h-12 ${item.id} rounded-full flex items-center justify-center text-2xl mt-1">${currentAvatar}</div>
+          <span class="text-xs font-bold text-slate-200 leading-tight">${escapeHtml(item.name)}</span>
+          ${btnHtml}
+        </div>
+      `;
+    }
+
+    async function buyShopItem(type, itemId, price, itemName) {
+      const myName = getDisplayName(currentUser.email);
+      const prof = userProfiles[myName];
+      if (!prof) return;
+
+      if ((prof.coins || 0) < price) {
+        return showToast(`Nicht genug Coins! Dir fehlen ${price - (prof.coins || 0)} Coins 🪙`, true);
+      }
+
+      const newCoins = prof.coins - price;
+      const unlocked = Array.isArray(prof.unlocked_items) ? [...prof.unlocked_items] : [...FREE_AVATARS, 'none'];
+      if (!unlocked.includes(itemId)) unlocked.push(itemId);
+
+      const updates = {
+        coins: newCoins,
+        unlocked_items: unlocked
+      };
+      if (type === 'avatar') updates.avatar = itemId;
+      if (type === 'frame') updates.frame = itemId;
+
+      const { error } = await db.from('family_profiles').update(updates).eq('user_name', myName);
+      if (error) return showToast('Fehler beim Kauf: ' + error.message, true);
+
+      Object.assign(prof, updates);
+      showToast(`🎉 "${itemName}" freigeschaltet & ausgerüstet!`);
+      updateHeaderUserUI();
+      renderShop();
+      renderAllViewsWithAvatars();
+    }
+
+    async function equipItem(type, itemId) {
+      const myName = getDisplayName(currentUser.email);
+      const prof = userProfiles[myName];
+      if (!prof) return;
+
+      const updates = {};
+      if (type === 'avatar') updates.avatar = itemId;
+      if (type === 'frame') updates.frame = itemId;
+
+      const { error } = await db.from('family_profiles').update(updates).eq('user_name', myName);
+      if (error) return showToast('Fehler beim Wechseln: ' + error.message, true);
+
+      Object.assign(prof, updates);
+      updateHeaderUserUI();
+      renderShop();
+      renderAllViewsWithAvatars();
+    }
+
+    function renderAllViewsWithAvatars() {
+      renderLeaderboard();
+      renderChat();
+      renderActivityFeed();
     }
 
     function renderCategories() {
@@ -593,25 +970,34 @@
     }
 
     async function loadAllData() {
+      // 1. Profile laden (Avatare, Rahmen & Coins)
+      const { data: profilesData } = await db.from('family_profiles').select('*');
+      userProfiles = {};
+      (profilesData || []).forEach(p => {
+        userProfiles[p.user_name] = p;
+      });
+      updateHeaderUserUI();
+
+      // 2. Aufgaben laden
       const { data: tasksData } = await db.from('family_tasks').select('*').order('created_at', { ascending: false });
       allTasks = tasksData || [];
       renderLeaderboard();
       renderActivityFeed();
 
+      // 3. Chat laden
       const { data: chatData } = await db.from('family_chat').select('*').order('created_at', { ascending: true }).limit(50);
       chatMessages = (chatData || []).map(m => {
-        // Sicherstellen, dass reactions immer ein Objekt ist
-        if (!m.reactions || typeof m.reactions !== 'object') {
-          m.reactions = {};
-        }
+        if (!m.reactions || typeof m.reactions !== 'object') m.reactions = {};
         return m;
       });
       renderChat();
 
+      // 4. To-Dos laden
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
       todos = todoData || [];
       renderTodos();
 
+      // 5. Dienstplan laden
       const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
         currentRotation = rotData[0];
@@ -620,6 +1006,11 @@
         currentRotation = { current_person: 'Osman', completed: false };
       }
       renderRotation();
+
+      // Falls Shop offen ist, auch dort neu zeichnen
+      if (!document.getElementById('shop-view').classList.contains('hidden')) {
+        renderShop();
+      }
     }
 
     function subscribeToRealtime() {
@@ -721,10 +1112,14 @@
     }
 
     function renderRotation() {
+      const person = currentRotation.current_person || 'Osman';
       document.getElementById('rotation-box').innerHTML = `
-        <div class="mb-2">
-          <span class="text-xs text-slate-400">Aktuell dran mit Küche/Spüli:</span>
-          <p class="text-base font-extrabold text-amber-300 mt-0.5">${escapeHtml(currentRotation.current_person || 'Osman')}</p>
+        <div class="mb-2.5 flex flex-col items-center">
+          <span class="text-xs text-slate-400 mb-1.5">Aktuell dran mit Küche/Spüli:</span>
+          <div class="flex items-center gap-2">
+            ${renderAvatarBadge(person, 'sm')}
+            <p class="text-base font-extrabold text-amber-300">${escapeHtml(person)}</p>
+          </div>
         </div>
         <button type="button" onclick="nextRotationPerson()" class="w-full py-2 px-3 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white font-semibold text-xs transition">
           Erledigt → Weitergeben an Nächsten ➔
@@ -750,32 +1145,25 @@
       const msgObj = chatMessages.find(m => m.id === messageId);
       if (!msgObj) return;
 
-      // Kopie der aktuellen Reaktionen anlegen
       const reactions = JSON.parse(JSON.stringify(msgObj.reactions || {}));
       const userName = getDisplayName(currentUser.email);
       
-      if (!reactions[emoji]) {
-        reactions[emoji] = [];
-      }
+      if (!reactions[emoji]) reactions[emoji] = [];
       
       const idx = reactions[emoji].indexOf(userName);
       if (idx > -1) {
         reactions[emoji].splice(idx, 1);
-        if (reactions[emoji].length === 0) {
-          delete reactions[emoji];
-        }
+        if (reactions[emoji].length === 0) delete reactions[emoji];
       } else {
         reactions[emoji].push(userName);
       }
 
-      // In Datenbank speichern
       const { error } = await db.from('family_chat').update({ reactions: reactions }).eq('id', messageId);
       if (error) {
         showToast('Fehler beim Reagieren: ' + error.message, true);
         return;
       }
 
-      // Lokal sofort aktualisieren
       msgObj.reactions = reactions;
       closeReactionPopup();
       renderChat();
@@ -824,17 +1212,20 @@
         const isPopupOpen = activeReactionPopupId === m.id;
 
         return `
-          <div onclick="handleMessageClick(event, '${m.id}')" class="relative bg-slate-900/50 p-2 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
-            <div class="flex items-baseline justify-between gap-2 mb-1">
-              <div>
-                <span class="font-bold text-emerald-400">${escapeHtml(m.user_name)}:</span>
-                <span class="text-slate-300 ml-1 break-words">${escapeHtml(m.message)}</span>
+          <div onclick="handleMessageClick(event, '${m.id}')" class="relative bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start gap-2 min-w-0">
+                ${renderAvatarBadge(m.user_name, 'sm')}
+                <div class="min-w-0 pt-0.5">
+                  <span class="font-bold text-emerald-400 block leading-none mb-1">${escapeHtml(m.user_name)}</span>
+                  <span class="text-slate-200 break-words block leading-snug">${escapeHtml(m.message)}</span>
+                </div>
               </div>
               <span class="text-[10px] text-slate-500 shrink-0">${timeString}</span>
             </div>
             
             ${Object.keys(reactions).length > 0 ? `
-              <div class="flex items-center gap-1.5 flex-wrap mt-1.5 pt-1 border-t border-slate-800/50">
+              <div class="flex items-center gap-1.5 flex-wrap mt-2 pt-1.5 border-t border-slate-800/50 pl-9">
                 ${reactionsHtml}
               </div>
             ` : ''}
@@ -895,20 +1286,21 @@
         const showStreak = entry.streak >= 2;
         
         return `
-          <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
-            <div class="flex items-center gap-3">
-              <span class="text-xl w-7 text-center font-bold">${medal}</span>
-              <div>
+          <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-3.5 sm:p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
+            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <span class="text-lg sm:text-xl w-6 text-center font-bold shrink-0">${medal}</span>
+              ${renderAvatarBadge(entry.name, 'md')}
+              <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
-                  <span class="font-bold text-base ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
-                  ${showCrown ? '<span title="Monatssieger!" class="text-sm">👑</span>' : ''}
+                  <span class="font-bold text-sm sm:text-base truncate ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
+                  ${showCrown ? '<span title="Monatssieger!" class="text-sm shrink-0">👑</span>' : ''}
                 </div>
-                ${showStreak ? `<span class="text-[11px] text-amber-400 font-medium">🔥 ${entry.streak} Tage aktiv (Monat)</span>` : ''}
+                ${showStreak ? `<span class="text-[11px] text-amber-400 font-medium block">🔥 ${entry.streak} Tage aktiv</span>` : ''}
               </div>
             </div>
-            <div class="text-right">
-              <span class="text-lg font-extrabold text-emerald-400">${entry.points}</span>
-              <span class="text-xs text-slate-400 ml-1">Punkte (Monat)</span>
+            <div class="text-right shrink-0 ml-2">
+              <span class="text-base sm:text-lg font-extrabold text-emerald-400">${entry.points}</span>
+              <span class="text-[11px] text-slate-400 block sm:inline sm:ml-1">Punkte</span>
             </div>
           </div>
         `;
@@ -921,6 +1313,7 @@
 
       const userTasks = allTasks.filter(t => t.user_name === userName);
       const totalPoints = userTasks.reduce((acc, curr) => acc + curr.points, 0);
+      const prof = userProfiles[userName] || { coins: 0 };
 
       const taskCounts = {};
       userTasks.forEach(t => {
@@ -932,11 +1325,24 @@
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const weeklyTasks = userTasks.filter(t => new Date(t.created_at) >= weekAgo);
 
+      const isMe = currentUser && getDisplayName(currentUser.email) === userName;
+
       content.innerHTML = `
         <div class="text-center mb-6">
-          <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">👤</div>
+          <div class="flex justify-center mb-3">
+            ${renderAvatarBadge(userName, 'lg')}
+          </div>
           <h2 class="text-xl font-bold">${escapeHtml(userName)}</h2>
-          <p class="text-xs text-emerald-400 mt-1">Gesamtpunkte (Alle Zeit): ${totalPoints} Pkt</p>
+          <div class="flex items-center justify-center gap-3 mt-1.5 text-xs">
+            <span class="text-emerald-400 font-semibold">Gesamt: ${totalPoints} Pkt</span>
+            <span class="text-slate-600">•</span>
+            <span class="text-amber-300 font-bold">Guthaben: ${prof.coins || 0} 🪙</span>
+          </div>
+          ${isMe ? `
+            <button onclick="closeProfileModal(); openShopView();" class="mt-3 px-4 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold transition">
+              🛍️ Avatar & Rahmen im Shop anpassen
+            </button>
+          ` : ''}
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-6">
@@ -988,12 +1394,15 @@
         const isOwn = currentUser && t.user_id === currentUser.id;
         return `
           <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
-            <div>
-              <span class="font-bold text-emerald-400">${escapeHtml(t.user_name)}</span>
-              <p class="text-slate-200">${escapeHtml(t.task_title)}</p>
-              <span class="text-[10px] text-slate-500">${timeStr} Uhr</span>
+            <div class="flex items-start gap-2 min-w-0">
+              ${renderAvatarBadge(t.user_name, 'sm')}
+              <div class="min-w-0">
+                <span class="font-bold text-emerald-400 block leading-none mb-1">${escapeHtml(t.user_name)}</span>
+                <p class="text-slate-200 leading-snug break-words">${escapeHtml(t.task_title)}</p>
+                <span class="text-[10px] text-slate-500">${timeStr} Uhr</span>
+              </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
               <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
               ${isOwn ? `<button type="button" onclick="confirmDeleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
             </div>
