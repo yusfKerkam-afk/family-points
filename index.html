@@ -123,19 +123,19 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Neu: DB-Bestenliste & Fixes! (v1.6)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Neu: Profil-Fix & DB-Leaderboard! (v1.7)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu in eurer Familien-App:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Saubere DB-Bestenliste:</b> Jeder registrierte Nutzer wird jetzt direkt aus der Datenbank geladen – keine doppelten Einträge mehr und alle direkt von Anfang an sichtbar!</span>
+          <span class="text-slate-200"><b>Zuverlässige Profilbilder:</b> Die Groß- und Kleinschreibung bei E-Mails wurde korrigiert, damit dein gewähltes Icon nach jedem Reload sicher gespeichert bleibt!</span>
         </div>
       </div>
 
       <button onclick="closeChangelog()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs shadow-lg shadow-emerald-600/30 transition">
-        Alles klar, verstanden! 👍
+        Alles klar, los geht's! 👍
       </button>
     </div>
   </div>
@@ -395,7 +395,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.6';
+    const CURRENT_VERSION = '1.7';
 
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
     
@@ -422,11 +422,11 @@
     ];
 
     const TASK_CATEGORIES = [
-      { title: '🍳 Beim kochen helfen', points: 25 },
+      { title: '🍳 Beim Essen bereiten helfen', points: 25 },
       { title: '🚽 Toilette putzen', points: 25 },
       { title: '🧽 Staub wischen', points: 20 },
       { title: '🧹 Boden wischen / Staub saugen', points: 30, hasExtra: true },
-      { title: '🍽️ Abwasch (z. B. Töpfe waschen)', points: 20 },
+      { title: '🍽️ Abwasch (z. B. Töpfe waschen)', points: 35 },
       {
         title: '🧺 Wäsche',
         isAccordion: true,
@@ -443,16 +443,17 @@
     const USER_DISPLAY_NAMES = {
       'yusfkemler@gmail.com': 'Yusuf',
       'eslem@gmail.com': 'Eslem',
-      'SedaChef@gmail.com': 'Seda Chef',
-      'IboBoss@gmail.com': 'Ibo Boss',
+      'sedachef@gmail.com': 'Seda Chef',
+      'iboboss@gmail.com': 'Ibo Boss',
       'osi@gmail.com': 'Osman',
       'esma@gmail.com': 'Esma',
     };
 
     function getDisplayName(email) {
       if (!email) return 'Mitglied';
-      if (USER_DISPLAY_NAMES[email]) return USER_DISPLAY_NAMES[email];
-      const rawName = email.split('@')[0];
+      const cleanEmail = email.trim().toLowerCase();
+      if (USER_DISPLAY_NAMES[cleanEmail]) return USER_DISPLAY_NAMES[cleanEmail];
+      const rawName = cleanEmail.split('@')[0];
       return rawName.charAt(0).toUpperCase() + rawName.slice(1);
     }
 
@@ -595,7 +596,7 @@
       
       renderCategories();
       resetTodoSelection();
-      await ensureCurrentUserProfile(); // Erst Profil sicherstellen, damit der User in der DB existiert
+      await ensureCurrentUserProfile();
       await loadAllData();
       await checkMonthlyRewards();
       subscribeToRealtime();
@@ -944,7 +945,6 @@
     }
 
     async function loadAllData() {
-      // 1. Profile DIREKT aus der Datenbank laden (Single Source of Truth)
       const { data: profilesData } = await db.from('family_profiles').select('*');
       userProfiles = {};
       (profilesData || []).forEach(p => {
@@ -952,13 +952,11 @@
       });
       updateHeaderUserUI();
 
-      // 2. Aufgaben laden
       const { data: tasksData } = await db.from('family_tasks').select('*').order('created_at', { ascending: false });
       allTasks = tasksData || [];
       renderLeaderboard();
       renderActivityFeed();
 
-      // 3. Chat laden
       const { data: chatData } = await db.from('family_chat').select('*').order('created_at', { ascending: true }).limit(50);
       chatMessages = (chatData || []).map(m => {
         if (!m.reactions || typeof m.reactions !== 'object') m.reactions = {};
@@ -966,12 +964,10 @@
       });
       renderChat();
 
-      // 4. To-Dos laden
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
       todos = todoData || [];
       renderTodos();
 
-      // 5. Dienstplan laden
       const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
         currentRotation = rotData[0];
@@ -1011,7 +1007,6 @@
 
     async function addTask(taskTitle, points) {
       const userName = getDisplayName(currentUser.email);
-      // Sicherstellen, dass das Profil in der DB existiert, bevor die Aufgabe eingetragen wird
       if (!userProfiles[userName]) {
         await ensureCurrentUserProfile();
       }
@@ -1219,13 +1214,11 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // SAUBERE BESTENLISTE DIREKT AUS DER DATENBANK (family_profiles)
     function renderLeaderboard() {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
-      // 1. Punkte des aktuellen Monats pro User aus den Aufgaben berechnen
       const monthlyScores = {};
       const monthlyStreaks = {};
 
@@ -1240,17 +1233,14 @@
         }
       });
 
-      // 2. Alle User DIREKT aus der Datenbank-Tabelle (userProfiles) holen -> Garantiert keine Dubletten & immer vollständig!
       const allNamesFromDb = Object.keys(userProfiles);
       
-      // Fallback, falls Profile noch laden sollten: Rotations-Member & aktive Tasks einbeziehen
       ROTATION_MEMBERS.forEach(m => { if (!allNamesFromDb.includes(m)) allNamesFromDb.push(m); });
       if (currentUser) {
         const myName = getDisplayName(currentUser.email);
         if (!allNamesFromDb.includes(myName)) allNamesFromDb.push(myName);
       }
 
-      // 3. Zusammenführen und sortieren
       const sorted = allNamesFromDb.map(name => {
         const points = monthlyScores[name] || 0;
         const streakSet = monthlyStreaks[name];
