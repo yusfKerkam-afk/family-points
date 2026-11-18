@@ -123,19 +123,19 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Neu: Profil-Fix & DB-Leaderboard! (v1.7)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Stabilitäts-Update (v1.8)</h3>
       </div>
-      <p class="text-xs text-slate-300 mb-4">Das ist neu in eurer Familien-App:</p>
+      <p class="text-xs text-slate-300 mb-4">Das wurde gerade behoben:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Zuverlässige Profilbilder:</b> Die Groß- und Kleinschreibung bei E-Mails wurde korrigiert, damit dein gewähltes Icon nach jedem Reload sicher gespeichert bleibt!</span>
+          <span class="text-slate-200"><b>Realtime-Fix:</b> Ein doppelter Startvorgang beim Laden der Seite wurde behoben, damit dein gewähltes Profilbild nach jedem Reload sofort zuverlässig geladen wird!</span>
         </div>
       </div>
 
       <button onclick="closeChangelog()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs shadow-lg shadow-emerald-600/30 transition">
-        Alles klar, los geht's! 👍
+        Alles klar! 👍
       </button>
     </div>
   </div>
@@ -395,7 +395,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.7';
+    const CURRENT_VERSION = '1.8';
 
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
     
@@ -459,6 +459,8 @@
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let currentUser = null;
+    let isAppInitialized = false;
+    let realtimeChannel = null;
     let allTasks = [];
     let chatMessages = [];
     let todos = [];
@@ -568,20 +570,24 @@
     });
 
     async function logout() {
+      isAppInitialized = false;
+      if (realtimeChannel) {
+        await db.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
       await db.auth.signOut();
       localStorage.clear();
       location.reload();
     }
 
-    db.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) initApp(session.user);
-    });
-
     db.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        initApp(session.user);
+        if (!isAppInitialized) {
+          initApp(session.user);
+        }
       } else {
         currentUser = null;
+        isAppInitialized = false;
         document.getElementById('auth-view').classList.remove('hidden');
         document.getElementById('app-view').classList.add('hidden');
         document.getElementById('shop-view').classList.add('hidden');
@@ -589,15 +595,18 @@
     });
 
     async function initApp(user) {
+      if (isAppInitialized) return;
+      isAppInitialized = true;
       currentUser = user;
+
       document.getElementById('auth-view').classList.add('hidden');
       document.getElementById('shop-view').classList.add('hidden');
       document.getElementById('app-view').classList.remove('hidden');
       
       renderCategories();
       resetTodoSelection();
-      await ensureCurrentUserProfile();
       await loadAllData();
+      await ensureCurrentUserProfile();
       await checkMonthlyRewards();
       subscribeToRealtime();
       checkChangelog();
@@ -982,8 +991,11 @@
       }
     }
 
-    function subscribeToRealtime() {
-      db.channel('family-main-channel')
+    async function subscribeToRealtime() {
+      if (realtimeChannel) {
+        await db.removeChannel(realtimeChannel);
+      }
+      realtimeChannel = db.channel('family-main-channel-' + Date.now())
         .on('postgres_changes', { event: '*', schema: 'public' }, () => {
           loadAllData();
         })
