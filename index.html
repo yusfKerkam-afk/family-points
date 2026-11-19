@@ -123,14 +123,22 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Stabilitäts-Update (v1.8)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Neue Funktionen (v1.9)</h3>
       </div>
-      <p class="text-xs text-slate-300 mb-4">Das wurde gerade behoben:</p>
+      <p class="text-xs text-slate-300 mb-4">Das ist neu in eurer Familien-App:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Realtime-Fix:</b> Ein doppelter Startvorgang beim Laden der Seite wurde behoben, damit dein gewähltes Profilbild nach jedem Reload sofort zuverlässig geladen wird!</span>
+          <span class="text-slate-200"><b>Datum & Uhrzeit:</b> Im Chat und im Verlauf wird jetzt neben der Uhrzeit auch immer das Datum angezeigt.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>3-Tage-Schutz im Verlauf:</b> Erledigte Einträge können nur noch innerhalb von 3 Tagen mit dem „✕“ gelöscht werden.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Flexible Punkte:</b> Bei eigenen Aufgaben kannst du jetzt selbst zwischen <b>+15</b> und <b>+20 Points</b> wählen!</span>
         </div>
       </div>
 
@@ -287,15 +295,22 @@
 
           <div class="pt-4 border-t border-slate-700/70">
             <label class="block text-xs font-medium text-slate-300 mb-2">
-              Eigene Aufgabe eintragen <span class="text-emerald-400 font-bold">(+15 Points)</span>
+              Eigene Aufgabe eintragen <span class="text-emerald-400 font-bold">(15 oder 20 Points)</span>
             </label>
             <form id="custom-task-form" class="flex flex-col sm:flex-row gap-2">
               <input type="text" id="custom-task-input" required placeholder="z. B. Blumen gegossen..."
                 class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white" />
-              <button type="submit"
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
-                Eintragen
-              </button>
+              <div class="flex gap-2">
+                <select id="custom-task-points" aria-label="Punkte wählen"
+                  class="px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm font-bold text-emerald-300 cursor-pointer">
+                  <option value="15">+15 Pkt</option>
+                  <option value="20">+20 Pkt</option>
+                </select>
+                <button type="submit"
+                  class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
+                  Eintragen
+                </button>
+              </div>
             </form>
           </div>
         </section>
@@ -395,7 +410,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '1.8';
+    const CURRENT_VERSION = '1.9';
 
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
     
@@ -455,6 +470,14 @@
       if (USER_DISPLAY_NAMES[cleanEmail]) return USER_DISPLAY_NAMES[cleanEmail];
       const rawName = cleanEmail.split('@')[0];
       return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    }
+
+    function formatDateTime(dateInput) {
+      if (!dateInput) return '';
+      const d = new Date(dateInput);
+      const datePart = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+      const timePart = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      return `${datePart}, ${timePart}`;
     }
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -534,6 +557,14 @@
     }
 
     function confirmDeleteTask(id) {
+      const task = allTasks.find(item => String(item.id) === String(id));
+      if (task) {
+        const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+        if ((Date.now() - new Date(task.created_at).getTime()) > threeDaysMs) {
+          return showToast('Dieser Eintrag ist älter als 3 Tage und kann nicht mehr gelöscht werden.', true);
+        }
+      }
+
       const modal = document.getElementById('confirm-modal');
       const confirmBtn = document.getElementById('confirm-delete-btn');
       modal.classList.remove('hidden');
@@ -1005,10 +1036,12 @@
     document.getElementById('custom-task-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('custom-task-input');
+      const pointsSelect = document.getElementById('custom-task-points');
       const title = input.value.trim();
+      const selectedPoints = parseInt(pointsSelect.value, 10) || 15;
       if (!title) return;
-      showPointsAnimation(15, e);
-      await addTask('✨ ' + title, 15);
+      showPointsAnimation(selectedPoints, e);
+      await addTask('✨ ' + title, selectedPoints);
       input.value = '';
     });
 
@@ -1179,11 +1212,7 @@
     function renderChat() {
       const container = document.getElementById('chat-messages');
       container.innerHTML = chatMessages.map(m => {
-        let timeString = '';
-        if (m.created_at) {
-          const d = new Date(m.created_at);
-          timeString = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        }
+        const timeString = formatDateTime(m.created_at);
 
         const reactions = m.reactions || {};
         const availableEmojis = ['👍', '❤️', '😂', '🔥', '👏'];
@@ -1345,12 +1374,12 @@
         <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
           ${userTasks.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">Noch keine Aktivitäten.</p>' : ''}
           ${userTasks.slice(0, 15).map(t => {
-            const dateStr = new Date(t.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            const dateStr = formatDateTime(t.created_at);
             return `
               <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
                 <div>
                   <p class="text-slate-200">${escapeHtml(t.task_title)}</p>
-                  <span class="text-[10px] text-slate-500">${dateStr}</span>
+                  <span class="text-[10px] text-slate-500">${dateStr} Uhr</span>
                 </div>
                 <span class="text-emerald-300 font-bold">+${t.points} Pkt</span>
               </div>
@@ -1374,9 +1403,15 @@
         return;
       }
 
+      const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+      const nowMs = Date.now();
+
       feed.innerHTML = recent.map(t => {
-        const timeStr = new Date(t.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const dateTimeStr = formatDateTime(t.created_at);
         const isOwn = currentUser && t.user_id === currentUser.id;
+        const isWithinThreeDays = (nowMs - new Date(t.created_at).getTime()) <= threeDaysMs;
+        const canDelete = isOwn && isWithinThreeDays;
+
         return `
           <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
             <div class="flex items-start gap-2 min-w-0">
@@ -1384,12 +1419,12 @@
               <div class="min-w-0">
                 <span class="font-bold text-emerald-400 block leading-none mb-1">${escapeHtml(t.user_name)}</span>
                 <p class="text-slate-200 leading-snug break-words">${escapeHtml(t.task_title)}</p>
-                <span class="text-[10px] text-slate-500">${timeStr} Uhr</span>
+                <span class="text-[10px] text-slate-500">${dateTimeStr} Uhr</span>
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
-              ${isOwn ? `<button type="button" onclick="confirmDeleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen">✕</button>` : ''}
+              ${canDelete ? `<button type="button" onclick="confirmDeleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen (möglich bis 3 Tage nach Eintrag)">✕</button>` : ''}
             </div>
           </div>
         `;
