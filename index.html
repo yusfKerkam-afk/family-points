@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" style="background-color: #020617;">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -31,38 +31,44 @@
     }
 
     html, body {
-      background-color: #020617;
-      color: #f8fafc;
       font-family: 'Inter', sans-serif;
+      background-color: #020617;
+      background-image: radial-gradient(circle at top right, #064e3b, #0f172a 55%, #020617);
+      background-attachment: fixed;
+      color: #f8fafc;
       min-height: 100%;
       overflow-x: hidden;
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Hardwarebeschleunigter Hintergrund-Layer gegen iOS Safari Flackern */
+    /* Nur auf iOS/iPadOS aktiver Layer gegen weißes Flackern */
+    body.ios-device {
+      background-image: none;
+      background-color: #020617;
+    }
+    body.ios-device #app-bg {
+      display: block;
+    }
     #app-bg {
+      display: none;
       position: fixed;
-      inset: -20px;
+      inset: -24px;
       z-index: -1;
       pointer-events: none;
       background-color: #020617;
-      background-image:
-        radial-gradient(600px circle at 12% 18%, rgba(16, 185, 129, 0.08), transparent 60%),
-        radial-gradient(550px circle at 88% 78%, rgba(245, 158, 11, 0.05), transparent 65%),
-        radial-gradient(circle at top right, #064e3b, #0f172a 55%, #020617);
+      background-image: radial-gradient(circle at top right, #064e3b, #0f172a 55%, #020617);
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
-      will-change: transform;
     }
 
     .glass {
-      background: rgba(30, 41, 59, 0.68);
+      background: rgba(30, 41, 59, 0.6);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .glass-card {
-      background: linear-gradient(145deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.96));
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.14);
@@ -220,6 +226,15 @@
 <body class="antialiased selection:bg-emerald-500 selection:text-white" onclick="handleBodyClick(event)">
 
   <div id="app-bg" aria-hidden="true"></div>
+  <script>
+    (function () {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS) {
+        document.body.classList.add('ios-device');
+      }
+    })();
+  </script>
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
@@ -240,14 +255,14 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v2.3)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v2.4)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>iPhone-Hintergrund Fix:</b> Der dunkle Smaragd-Hintergrund bleibt auf dem iPhone jetzt beim Scrollen komplett stabil ohne weißes Flackern.</span>
+          <span class="text-slate-200"><b>Satter Smaragd-Verlauf + iPhone-Fix:</b> Alle Geräte behalten den vollen grünen Verlauf, und auf dem iPhone bleibt er ohne weißes Flackern stabil.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
@@ -554,7 +569,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.3';
+    const CURRENT_VERSION = '2.4';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
 
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀', '🐦‍🔥', '🐥', '🦢'];
@@ -734,7 +749,7 @@
         el.style.setProperty('--tx-mid', p.midX);
         el.style.setProperty('--ty-mid', p.midY);
         el.style.setProperty('--tx-end', p.endX);
-        el.style.setProperty('--ty-end', p.endY);
+        el.style.setProperty('--ty-end', p.ty-end);
         previewCard.appendChild(el);
         setTimeout(() => el.remove(), 900);
       });
