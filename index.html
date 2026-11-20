@@ -123,18 +123,14 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Neue Funktionen (v2.0)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Neue Funktionen (v2.1)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu in eurer Familien-App:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Mehr Punkte-Auswahl:</b> Bei eigenen Aufgaben kannst du jetzt zwischen <b>+10</b>, <b>+15</b> und <b>+20 Points</b> wählen.</span>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Eigene To-Dos mit Punkten:</b> Für eigene To-Dos kannst du jetzt <b>0</b>, <b>5</b>, <b>10</b> oder <b>15 Points</b> festlegen.</span>
+          <span class="text-slate-200"><b>Schickes Handy-Design für Punkte:</b> Statt dem Handy-Standardmenü gibt es jetzt elegante dunkle Auswahl-Buttons direkt im App-Look!</span>
         </div>
       </div>
 
@@ -166,19 +162,31 @@
           <label id="todo-extra-label" class="block text-xs font-medium text-emerald-400"></label>
           <button type="button" onclick="resetTodoSelection()" class="text-[11px] text-slate-400 hover:text-white underline">← Abbrechen</button>
         </div>
-        <div class="flex flex-col sm:flex-row gap-2">
+
+        <!-- EIGENE PUNKTE-PILLS FÜR TODO (kein natives Handy-Select mehr) -->
+        <div id="todo-custom-points-group" class="hidden grid grid-cols-4 gap-1.5 mb-2.5 p-1 rounded-xl bg-slate-900/90 border border-slate-700/80">
+          <button type="button" onclick="selectTodoCustomPoints(0)" data-todo-pts="0"
+            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            0 Pkt
+          </button>
+          <button type="button" onclick="selectTodoCustomPoints(5)" data-todo-pts="5"
+            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            +5 Pkt
+          </button>
+          <button type="button" onclick="selectTodoCustomPoints(10)" data-todo-pts="10"
+            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            +10 Pkt
+          </button>
+          <button type="button" onclick="selectTodoCustomPoints(15)" data-todo-pts="15"
+            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50">
+            +15 Pkt
+          </button>
+        </div>
+
+        <div class="flex gap-2">
           <input type="text" id="todo-extra-input" placeholder="..."
             class="w-full min-w-0 flex-1 px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
-          <div class="flex gap-2">
-            <select id="todo-custom-points" aria-label="To-Do Punkte wählen"
-              class="hidden px-2.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs font-bold text-emerald-300 cursor-pointer">
-              <option value="0">0 Pkt</option>
-              <option value="5">5 Pkt</option>
-              <option value="10">10 Pkt</option>
-              <option value="15" selected>15 Pkt</option>
-            </select>
-            <button type="button" id="todo-confirm-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
-          </div>
+          <button type="button" id="todo-confirm-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
         </div>
       </div>
 
@@ -299,24 +307,33 @@
           <div id="tasks-container" class="space-y-3 mb-5"></div>
 
           <div class="pt-4 border-t border-slate-700/70">
-            <label class="block text-xs font-medium text-slate-300 mb-2">
-              Eigene Aufgabe eintragen <span class="text-emerald-400 font-bold">(10, 15 oder 20 Points)</span>
-            </label>
-            <form id="custom-task-form" class="flex flex-col sm:flex-row gap-2">
-              <input type="text" id="custom-task-input" required placeholder="z. B. Blumen gegossen..."
-                class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white" />
-              <div class="flex gap-2">
-                <select id="custom-task-points" aria-label="Punkte wählen"
-                  class="px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm font-bold text-emerald-300 cursor-pointer">
-                  <option value="10">+10 Pkt</option>
-                  <option value="15" selected>+15 Pkt</option>
-                  <option value="20">+20 Pkt</option>
-                </select>
-                <button type="submit"
-                  class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
-                  Eintragen
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <label class="text-xs font-medium text-slate-300">
+                Eigene Aufgabe eintragen
+              </label>
+              <!-- EIGENE PUNKTE-PILLS (kein natives Handy-Select mehr) -->
+              <div class="inline-flex p-1 rounded-xl bg-slate-900/90 border border-slate-700/80 gap-1" role="group" aria-label="Punkte wählen">
+                <button type="button" onclick="selectCustomTaskPoints(10)" data-task-pts="10"
+                  class="task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                  +10 Pkt
+                </button>
+                <button type="button" onclick="selectCustomTaskPoints(15)" data-task-pts="15"
+                  class="task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50">
+                  +15 Pkt
+                </button>
+                <button type="button" onclick="selectCustomTaskPoints(20)" data-task-pts="20"
+                  class="task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                  +20 Pkt
                 </button>
               </div>
+            </div>
+            <form id="custom-task-form" class="flex gap-2">
+              <input type="text" id="custom-task-input" required placeholder="z. B. Blumen gegossen..."
+                class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white" />
+              <button type="submit"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
+                Eintragen
+              </button>
             </form>
           </div>
         </section>
@@ -416,7 +433,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.0';
+    const CURRENT_VERSION = '2.1';
 
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
     
@@ -496,6 +513,32 @@
     let userProfiles = {};
     let currentRotation = { current_person: 'Osman', id: null };
     let activeReactionPopupId = null;
+    let selectedCustomTaskPoints = 15;
+    let selectedTodoCustomPoints = 15;
+
+    function selectCustomTaskPoints(pts) {
+      selectedCustomTaskPoints = pts;
+      document.querySelectorAll('.task-pts-btn').forEach(btn => {
+        const val = parseInt(btn.getAttribute('data-task-pts'), 10);
+        if (val === pts) {
+          btn.className = 'task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50';
+        } else {
+          btn.className = 'task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white border border-transparent';
+        }
+      });
+    }
+
+    function selectTodoCustomPoints(pts) {
+      selectedTodoCustomPoints = pts;
+      document.querySelectorAll('.todo-pts-btn').forEach(btn => {
+        const val = parseInt(btn.getAttribute('data-todo-pts'), 10);
+        if (val === pts) {
+          btn.className = 'todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50';
+        } else {
+          btn.className = 'todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white border border-transparent';
+        }
+      });
+    }
 
     function renderAvatarBadge(userName, size = 'md') {
       const prof = userProfiles[userName] || { avatar: '👤', frame: 'none' };
@@ -923,9 +966,8 @@
     function resetTodoSelection() {
       document.getElementById('todo-extra-input-container').classList.add('hidden');
       document.getElementById('todo-extra-input').value = '';
-      const todoPointsSelect = document.getElementById('todo-custom-points');
-      todoPointsSelect.classList.add('hidden');
-      todoPointsSelect.value = '15';
+      document.getElementById('todo-custom-points-group').classList.add('hidden');
+      selectTodoCustomPoints(15);
       document.getElementById('todo-modal-desc').style.display = 'block';
       renderTodoSelectorModal();
     }
@@ -952,14 +994,14 @@
       const extraContainer = document.getElementById('todo-extra-input-container');
       const extraLabel = document.getElementById('todo-extra-label');
       const extraInput = document.getElementById('todo-extra-input');
-      const todoPointsSelect = document.getElementById('todo-custom-points');
+      const todoPointsGroup = document.getElementById('todo-custom-points-group');
       const confirmBtn = document.getElementById('todo-confirm-btn');
 
       if (title === 'CUSTOM') {
-        extraLabel.textContent = 'Welche eigene Aufgabe & wie viele Punkte? (0, 5, 10 oder 15 Pkt)';
+        extraLabel.textContent = 'Punkte wählen & Aufgabe eingeben:';
         extraInput.placeholder = 'z. B. Notiz oder Aufgabe eingeben...';
-        todoPointsSelect.classList.remove('hidden');
-        todoPointsSelect.value = '15';
+        todoPointsGroup.classList.remove('hidden');
+        selectTodoCustomPoints(15);
         extraContainer.classList.remove('hidden');
         document.getElementById('todo-modal-desc').style.display = 'none';
         document.getElementById('todo-selection-list').innerHTML = '';
@@ -972,7 +1014,7 @@
       if (hasExtra) {
         extraLabel.textContent = `Welche Zimmer? (${title}, +${points} Pkt)`;
         extraInput.placeholder = 'z. B. Wohnzimmer & Flur (optional)...';
-        todoPointsSelect.classList.add('hidden');
+        todoPointsGroup.classList.add('hidden');
         extraContainer.classList.remove('hidden');
         document.getElementById('todo-modal-desc').style.display = 'none';
         document.getElementById('todo-selection-list').innerHTML = '';
@@ -987,8 +1029,7 @@
 
     async function confirmCustomTodo() {
       const inputVal = document.getElementById('todo-extra-input').value.trim();
-      const selectedPoints = parseInt(document.getElementById('todo-custom-points').value, 10);
-      const finalPoints = Number.isNaN(selectedPoints) ? 15 : selectedPoints;
+      const finalPoints = selectedTodoCustomPoints;
       if (!inputVal) return showToast('Bitte gib eine Aufgabe ein!', true);
       await addTodoItem('✨ ' + inputVal, finalPoints);
     }
@@ -1051,9 +1092,8 @@
     document.getElementById('custom-task-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('custom-task-input');
-      const pointsSelect = document.getElementById('custom-task-points');
       const title = input.value.trim();
-      const selectedPoints = parseInt(pointsSelect.value, 10) || 15;
+      const selectedPoints = selectedCustomTaskPoints;
       if (!title) return;
       showPointsAnimation(selectedPoints, e);
       await addTask('✨ ' + title, selectedPoints);
