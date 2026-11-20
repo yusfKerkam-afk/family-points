@@ -9,13 +9,45 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
   <style>
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(71, 85, 105, 0.7) rgba(15, 23, 42, 0.35);
+    }
+    *::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    *::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.35);
+      border-radius: 9999px;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: rgba(71, 85, 105, 0.75);
+      border-radius: 9999px;
+    }
+    *::-webkit-scrollbar-thumb:hover {
+      background: rgba(16, 185, 129, 0.65);
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background: radial-gradient(circle at top right, #064e3b, #0f172a 55%, #020617);
       color: #f8fafc;
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(600px circle at 12% 18%, rgba(16, 185, 129, 0.08), transparent 60%),
+        radial-gradient(550px circle at 88% 78%, rgba(245, 158, 11, 0.05), transparent 65%);
+    }
+
     .glass {
       background: rgba(30, 41, 59, 0.6);
       backdrop-filter: blur(16px);
@@ -28,11 +60,86 @@
       border: 1px solid rgba(255, 255, 255, 0.14);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     }
-    .fade-in { animation: fadeIn 0.25s ease-out forwards; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    /* SANFTE HOVER- & TAP-ÜBERGÄNGE */
+    .smooth-btn {
+      transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
     }
+    .smooth-btn:hover {
+      transform: translateY(-1px);
+    }
+    .smooth-btn:active {
+      transform: scale(0.975);
+    }
+    .smooth-card {
+      transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+    }
+    .smooth-card:hover {
+      transform: translateY(-1.5px);
+    }
+
+    /* SANFTES EINFLIEGEN NEUER EINTRÄGE */
+    .fade-in { animation: fadeIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .pop-in { animation: popIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* GERADE EBEN HIGHLIGHT (< 3 Minuten alt) */
+    .fresh-highlight {
+      border-color: rgba(52, 211, 153, 0.45) !important;
+      box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.14), 0 4px 14px -4px rgba(16, 185, 129, 0.18);
+    }
+
+    /* GOLDENER SCHIMMER FÜR PLATZ 1 */
+    .first-place-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .first-place-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 65%;
+      height: 100%;
+      background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgba(251, 191, 36, 0.06) 35%,
+        rgba(253, 224, 71, 0.16) 50%,
+        rgba(251, 191, 36, 0.06) 65%,
+        transparent 100%
+      );
+      pointer-events: none;
+      animation: goldShimmer 5.5s ease-in-out infinite;
+    }
+    @keyframes goldShimmer {
+      0% { left: -120%; }
+      45% { left: 140%; }
+      100% { left: 140%; }
+    }
+
+    /* SHOP-KAUF SPARKLE */
+    .shop-sparkle {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1rem;
+      z-index: 20;
+      animation: sparkleBurst 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes sparkleBurst {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+      25% { opacity: 1; transform: translate(var(--tx-mid), var(--ty-mid)) scale(1.15); }
+      100% { opacity: 0; transform: translate(var(--tx-end), var(--ty-end)) scale(0.75); }
+    }
+
     .accordion-content {
       max-height: 0;
       overflow: hidden;
@@ -112,7 +219,7 @@
       <div class="text-5xl mb-3">👑</div>
       <h3 class="text-xl font-extrabold text-amber-300 mb-2">Monats-Siegerehrung & Coins!</h3>
       <div id="winner-text" class="text-xs sm:text-sm text-slate-200 mb-6 space-y-2"></div>
-      <button onclick="closeWinnerModal()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-amber-500/30">
+      <button onclick="closeWinnerModal()" class="smooth-btn w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/30">
         Coins einsammeln & weiter geht's! 🚀
       </button>
     </div>
@@ -122,19 +229,27 @@
   <div id="changelog-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
-        <span class="text-2xl">🚀</span>
-        <h3 class="text-lg font-bold text-emerald-300">Neue Funktionen (v2.1)</h3>
+        <span class="text-2xl">✨</span>
+        <h3 class="text-lg font-bold text-emerald-300">Design-Upgrade (v2.2)</h3>
       </div>
-      <p class="text-xs text-slate-300 mb-4">Das ist neu in eurer Familien-App:</p>
+      <p class="text-xs text-slate-300 mb-4">Das wurde optisch verfeinert:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Schickes Handy-Design für Punkte:</b> Statt dem Handy-Standardmenü gibt es jetzt elegante dunkle Auswahl-Buttons direkt im App-Look!</span>
+          <span class="text-slate-200"><b>Smoothe Animationen & „Gerade eben“-Highlight:</b> Neue Einträge gleiten weich ins Bild und frische Einträge (&lt; 3 Min.) sind dezent hervorgehoben.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-amber-300 font-bold">•</span>
+          <span class="text-slate-200"><b>Gold-Schimmer & Shop-Sparkle:</b> Platz 1 schimmert edel in Gold, und beim Kauf im Shop blitzen kurz Coins auf.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Dunkle Scrollbars & weiche Übergänge:</b> Schlanke Scrollbalken und sanfte Reaktionen auf Klicks.</span>
         </div>
       </div>
 
-      <button onclick="closeChangelog()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs shadow-lg shadow-emerald-600/30 transition">
+      <button onclick="closeChangelog()" class="smooth-btn w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs shadow-lg shadow-emerald-600/30">
         Alles klar! 👍
       </button>
     </div>
@@ -143,7 +258,7 @@
   <!-- PROFIL MODAL -->
   <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-lg p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
-      <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg px-2.5 py-1 bg-slate-800 rounded-xl">✕</button>
+      <button onclick="closeProfileModal()" class="smooth-btn absolute top-4 right-4 text-slate-400 hover:text-white text-lg px-2.5 py-1 bg-slate-800 rounded-xl">✕</button>
       <div id="profile-content"></div>
     </div>
   </div>
@@ -153,7 +268,7 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-base font-bold">📌 To-Do hinzufügen</h3>
-        <button onclick="closeTodoModal()" class="text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
+        <button onclick="closeTodoModal()" class="smooth-btn text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
       </div>
       <p id="todo-modal-desc" class="text-xs text-slate-400 mb-4">Wähle eine Aufgabe aus, die erledigt werden muss:</p>
       
@@ -163,22 +278,22 @@
           <button type="button" onclick="resetTodoSelection()" class="text-[11px] text-slate-400 hover:text-white underline">← Abbrechen</button>
         </div>
 
-        <!-- EIGENE PUNKTE-PILLS FÜR TODO (kein natives Handy-Select mehr) -->
+        <!-- EIGENE PUNKTE-PILLS FÜR TODO -->
         <div id="todo-custom-points-group" class="hidden grid grid-cols-4 gap-1.5 mb-2.5 p-1 rounded-xl bg-slate-900/90 border border-slate-700/80">
           <button type="button" onclick="selectTodoCustomPoints(0)" data-todo-pts="0"
-            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            class="todo-pts-btn smooth-btn py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
             0 Pkt
           </button>
           <button type="button" onclick="selectTodoCustomPoints(5)" data-todo-pts="5"
-            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            class="todo-pts-btn smooth-btn py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
             +5 Pkt
           </button>
           <button type="button" onclick="selectTodoCustomPoints(10)" data-todo-pts="10"
-            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            class="todo-pts-btn smooth-btn py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
             +10 Pkt
           </button>
           <button type="button" onclick="selectTodoCustomPoints(15)" data-todo-pts="15"
-            class="todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50">
+            class="todo-pts-btn smooth-btn py-1.5 rounded-lg text-xs font-bold bg-emerald-600/30 text-emerald-300 border border-emerald-500/50">
             +15 Pkt
           </button>
         </div>
@@ -186,7 +301,7 @@
         <div class="flex gap-2">
           <input type="text" id="todo-extra-input" placeholder="..."
             class="w-full min-w-0 flex-1 px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
-          <button type="button" id="todo-confirm-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
+          <button type="button" id="todo-confirm-btn" class="smooth-btn px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
         </div>
       </div>
 
@@ -215,7 +330,7 @@
             class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-white transition" />
         </div>
         <button type="submit"
-          class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] font-semibold text-white shadow-lg shadow-emerald-600/30 transition">
+          class="smooth-btn w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-white shadow-lg shadow-emerald-600/30">
           Einloggen
         </button>
       </form>
@@ -240,18 +355,18 @@
       </div>
       
       <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <button onclick="openShopView()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 hover:from-amber-500/30 hover:to-emerald-500/30 text-amber-300 border border-amber-400/40 transition flex items-center gap-1.5 shadow-sm">
+        <button onclick="openShopView()" class="smooth-btn text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 hover:from-amber-500/30 hover:to-emerald-500/30 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 shadow-sm">
           <span>🛍️ Shop</span>
           <span class="bg-slate-900/80 px-1.5 py-0.5 rounded-md text-[11px] text-amber-200" id="header-coins">0 🪙</span>
         </button>
 
-        <button onclick="openChangelog()" class="text-[11px] font-medium px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition">
+        <button onclick="openChangelog()" class="smooth-btn text-[11px] font-medium px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-slate-700">
           🚀 Neu
         </button>
 
-        <div id="current-user-badge" onclick="openProfile(getDisplayName(currentUser.email))" class="cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 transition"></div>
+        <div id="current-user-badge" onclick="openProfile(getDisplayName(currentUser.email))" class="smooth-btn cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300"></div>
 
-        <button onclick="logout()" class="text-xs px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+        <button onclick="logout()" class="smooth-btn text-xs px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white">
           Abmelden
         </button>
       </div>
@@ -273,7 +388,7 @@
         <section class="glass rounded-3xl p-5">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-bold flex items-center gap-1.5">📌 To-Do-Liste</h2>
-            <button onclick="openTodoModal()" class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">+ Hinzufügen</button>
+            <button onclick="openTodoModal()" class="smooth-btn px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">+ Hinzufügen</button>
           </div>
           <div id="todo-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </section>
@@ -284,8 +399,8 @@
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-3 text-xs"></div>
           <form id="chat-form" class="flex gap-2">
             <input type="text" id="chat-input" required placeholder="Nachricht..."
-              class="w-full min-w-0 flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white" />
-            <button type="submit" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold whitespace-nowrap">Senden</button>
+              class="w-full min-w-0 flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white transition" />
+            <button type="submit" class="smooth-btn px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold whitespace-nowrap">Senden</button>
           </form>
         </section>
       </div>
@@ -311,27 +426,27 @@
               <label class="text-xs font-medium text-slate-300">
                 Eigene Aufgabe eintragen
               </label>
-              <!-- EIGENE PUNKTE-PILLS (kein natives Handy-Select mehr) -->
+              <!-- EIGENE PUNKTE-PILLS -->
               <div class="inline-flex p-1 rounded-xl bg-slate-900/90 border border-slate-700/80 gap-1" role="group" aria-label="Punkte wählen">
                 <button type="button" onclick="selectCustomTaskPoints(10)" data-task-pts="10"
-                  class="task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                  class="task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
                   +10 Pkt
                 </button>
                 <button type="button" onclick="selectCustomTaskPoints(15)" data-task-pts="15"
-                  class="task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50">
+                  class="task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600/30 text-emerald-300 border border-emerald-500/50">
                   +15 Pkt
                 </button>
                 <button type="button" onclick="selectCustomTaskPoints(20)" data-task-pts="20"
-                  class="task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                  class="task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
                   +20 Pkt
                 </button>
               </div>
             </div>
             <form id="custom-task-form" class="flex gap-2">
               <input type="text" id="custom-task-input" required placeholder="z. B. Blumen gegossen..."
-                class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white" />
+                class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white transition" />
               <button type="submit"
-                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 font-semibold text-sm transition whitespace-nowrap">
+                class="smooth-btn px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-sm whitespace-nowrap">
                 Eintragen
               </button>
             </form>
@@ -356,7 +471,7 @@
   <div id="shop-view" class="hidden min-h-screen flex flex-col max-w-4xl mx-auto p-3 sm:p-6 fade-in">
     <!-- SHOP HEADER -->
     <div class="glass rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3 mb-6 sticky top-3 z-30">
-      <button onclick="closeShopView()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-1.5 transition">
+      <button onclick="closeShopView()" class="smooth-btn px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-1.5">
         <span>←</span> Zurück
       </button>
       <h1 class="text-base sm:text-lg font-extrabold tracking-tight flex items-center gap-1.5">
@@ -367,9 +482,9 @@
       </div>
     </div>
 
-    <div class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+    <div id="shop-preview-card" class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
       <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block mb-3">Deine aktuelle Vorschau</span>
-      <div id="shop-preview-avatar" class="mx-auto mb-3 flex items-center justify-center"></div>
+      <div id="shop-preview-avatar" class="mx-auto mb-3 flex items-center justify-center relative"></div>
       <h2 id="shop-preview-name" class="text-lg font-bold text-white"></h2>
       <p class="text-xs text-slate-400 mt-1">So sehen dich alle in der Bestenliste, im Chat und im Verlauf!</p>
     </div>
@@ -419,10 +534,10 @@
       <p class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
       
       <div class="flex gap-2">
-        <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
+        <button type="button" onclick="closeConfirmModal()" class="smooth-btn flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
           Abbrechen
         </button>
-        <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition">
+        <button type="button" id="confirm-delete-btn" class="smooth-btn flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30">
           Löschen
         </button>
       </div>
@@ -433,7 +548,8 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.1';
+    const CURRENT_VERSION = '2.2';
+    const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
 
     const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀'];
     
@@ -503,6 +619,12 @@
       return `${datePart}, ${timePart}`;
     }
 
+    function isFreshEntry(dateInput) {
+      if (!dateInput) return false;
+      const diff = Date.now() - new Date(dateInput).getTime();
+      return diff >= 0 && diff <= FRESH_HIGHLIGHT_MS;
+    }
+
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let currentUser = null;
     let isAppInitialized = false;
@@ -516,14 +638,18 @@
     let selectedCustomTaskPoints = 15;
     let selectedTodoCustomPoints = 15;
 
+    let knownTaskIds = null;
+    let knownChatIds = null;
+    let knownTodoIds = null;
+
     function selectCustomTaskPoints(pts) {
       selectedCustomTaskPoints = pts;
       document.querySelectorAll('.task-pts-btn').forEach(btn => {
         const val = parseInt(btn.getAttribute('data-task-pts'), 10);
         if (val === pts) {
-          btn.className = 'task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50';
+          btn.className = 'task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600/30 text-emerald-300 border border-emerald-500/50';
         } else {
-          btn.className = 'task-pts-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white border border-transparent';
+          btn.className = 'task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white border border-transparent';
         }
       });
     }
@@ -533,9 +659,9 @@
       document.querySelectorAll('.todo-pts-btn').forEach(btn => {
         const val = parseInt(btn.getAttribute('data-todo-pts'), 10);
         if (val === pts) {
-          btn.className = 'todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600/30 text-emerald-300 border border-emerald-500/50';
+          btn.className = 'todo-pts-btn smooth-btn py-1.5 rounded-lg text-xs font-bold bg-emerald-600/30 text-emerald-300 border border-emerald-500/50';
         } else {
-          btn.className = 'todo-pts-btn py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white border border-transparent';
+          btn.className = 'todo-pts-btn smooth-btn py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white border border-transparent';
         }
       });
     }
@@ -557,7 +683,7 @@
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
       t.textContent = msg;
-      t.className = `fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl transition-all ${isError ? 'bg-red-900/90 border border-red-500 text-red-100' : 'glass text-emerald-300 border-emerald-500/40'}`;
+      t.className = `fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl fade-in ${isError ? 'bg-red-900/90 border border-red-500 text-red-100' : 'glass text-emerald-300 border-emerald-500/40'}`;
       t.classList.remove('hidden');
       setTimeout(() => t.classList.add('hidden'), 3500);
     }
@@ -579,6 +705,33 @@
       document.body.appendChild(el);
       
       setTimeout(() => el.remove(), 1000);
+    }
+
+    function triggerShopPurchaseSparkle() {
+      const previewCard = document.getElementById('shop-preview-card');
+      if (!previewCard) return;
+
+      const particles = [
+        { icon: '🪙', midX: '-36px', midY: '-24px', endX: '-52px', endY: '-46px' },
+        { icon: '✨', midX: '38px', midY: '-22px', endX: '54px', endY: '-44px' },
+        { icon: '🪙', midX: '-22px', midY: '18px', endX: '-34px', endY: '34px' },
+        { icon: '⭐', midX: '26px', midY: '16px', endX: '42px', endY: '32px' },
+        { icon: '✨', midX: '0px', midY: '-30px', endX: '0px', endY: '-54px' }
+      ];
+
+      particles.forEach(p => {
+        const el = document.createElement('span');
+        el.className = 'shop-sparkle';
+        el.textContent = p.icon;
+        el.style.left = '50%';
+        el.style.top = '42%';
+        el.style.setProperty('--tx-mid', p.midX);
+        el.style.setProperty('--ty-mid', p.midY);
+        el.style.setProperty('--tx-end', p.endX);
+        el.style.setProperty('--ty-end', p.endY);
+        previewCard.appendChild(el);
+        setTimeout(() => el.remove(), 900);
+      });
     }
 
     function escapeHtml(str) {
@@ -651,6 +804,9 @@
 
     async function logout() {
       isAppInitialized = false;
+      knownTaskIds = null;
+      knownChatIds = null;
+      knownTodoIds = null;
       if (realtimeChannel) {
         await db.removeChannel(realtimeChannel);
         realtimeChannel = null;
@@ -806,7 +962,7 @@
       document.getElementById('shop-free-avatars').innerHTML = FREE_AVATARS.map(emo => {
         const isEquipped = prof.avatar === emo;
         return `
-          <button onclick="equipItem('avatar', '${emo}')" class="p-3 rounded-2xl border text-center transition flex flex-col items-center justify-center gap-1 ${isEquipped ? 'bg-emerald-500/20 border-emerald-400 shadow-md' : 'bg-slate-900/60 border-slate-800 hover:border-slate-600'}">
+          <button onclick="equipItem('avatar', '${emo}')" class="smooth-btn p-3 rounded-2xl border text-center flex flex-col items-center justify-center gap-1 ${isEquipped ? 'bg-emerald-500/20 border-emerald-400 shadow-md' : 'bg-slate-900/60 border-slate-800 hover:border-slate-600'}">
             <span class="text-2xl sm:text-3xl">${emo}</span>
             <span class="text-[10px] font-bold ${isEquipped ? 'text-emerald-300' : 'text-slate-400'}">${isEquipped ? 'Aktiv ✓' : 'Wählen'}</span>
           </button>
@@ -824,13 +980,13 @@
         if (isEquipped) {
           btnHtml = `<span class="w-full py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-[11px] block">Aktiv ✓</span>`;
         } else if (isUnlocked) {
-          btnHtml = `<button onclick="equipItem('avatar', '${item.id}')" class="w-full py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px] transition">Ausrüsten</button>`;
+          btnHtml = `<button onclick="equipItem('avatar', '${item.id}')" class="smooth-btn w-full py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px]">Ausrüsten</button>`;
         } else {
-          btnHtml = `<button onclick="buyShopItem('avatar', '${item.id}', ${item.price}, '${escapeHtml(item.name)}')" class="w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] transition">${item.price} 🪙 Kaufen</button>`;
+          btnHtml = `<button onclick="buyShopItem('avatar', '${item.id}', ${item.price}, '${escapeHtml(item.name)}')" class="smooth-btn w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px]">${item.price} 🪙 Kaufen</button>`;
         }
 
         return `
-          <div class="p-3.5 rounded-2xl bg-slate-900/70 border ${isEquipped ? 'border-emerald-400' : 'border-slate-800'} flex flex-col items-center text-center justify-between gap-2">
+          <div class="smooth-card p-3.5 rounded-2xl bg-slate-900/70 border ${isEquipped ? 'border-emerald-400' : 'border-slate-800'} flex flex-col items-center text-center justify-between gap-2">
             <span class="text-3xl sm:text-4xl mt-1">${item.id}</span>
             <span class="text-xs font-bold text-slate-200">${escapeHtml(item.name)}</span>
             ${btnHtml}
@@ -846,15 +1002,15 @@
 
       let btnHtml = '';
       if (isEquipped) {
-        btnHtml = `<button onclick="equipItem('frame', 'none')" class="w-full py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-[11px]">Aktiv ✓ (Ablegen)</button>`;
+        btnHtml = `<button onclick="equipItem('frame', 'none')" class="smooth-btn w-full py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-[11px]">Aktiv ✓ (Ablegen)</button>`;
       } else if (isUnlocked) {
-        btnHtml = `<button onclick="equipItem('frame', '${item.id}')" class="w-full py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px] transition">Anlegen</button>`;
+        btnHtml = `<button onclick="equipItem('frame', '${item.id}')" class="smooth-btn w-full py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px]">Anlegen</button>`;
       } else {
-        btnHtml = `<button onclick="buyShopItem('frame', '${item.id}', ${item.price}, '${escapeHtml(item.name)}')" class="w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] transition">${item.price} 🪙 Kaufen</button>`;
+        btnHtml = `<button onclick="buyShopItem('frame', '${item.id}', ${item.price}, '${escapeHtml(item.name)}')" class="smooth-btn w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px]">${item.price} 🪙 Kaufen</button>`;
       }
 
       return `
-        <div class="p-3.5 rounded-2xl bg-slate-900/70 border ${isEquipped ? 'border-emerald-400' : 'border-slate-800'} flex flex-col items-center text-center justify-between gap-2.5">
+        <div class="smooth-card p-3.5 rounded-2xl bg-slate-900/70 border ${isEquipped ? 'border-emerald-400' : 'border-slate-800'} flex flex-col items-center text-center justify-between gap-2.5">
           <div class="w-12 h-12 ${item.id} rounded-full flex items-center justify-center text-2xl mt-1">${currentAvatar}</div>
           <span class="text-xs font-bold text-slate-200 leading-tight">${escapeHtml(item.name)}</span>
           ${btnHtml}
@@ -889,6 +1045,7 @@
       showToast(`🎉 "${itemName}" freigeschaltet & ausgerüstet!`);
       updateHeaderUserUI();
       renderShop();
+      triggerShopPurchaseSparkle();
       renderAllViewsWithAvatars();
     }
 
@@ -922,14 +1079,14 @@
         if (cat.isAccordion) {
           return `
             <div class="border border-slate-700/80 rounded-2xl bg-slate-800/40 overflow-hidden">
-              <button type="button" onclick="toggleAccordion(${idx})" class="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/80 transition">
+              <button type="button" onclick="toggleAccordion(${idx})" class="smooth-btn w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/80">
                 <span class="text-sm font-medium text-slate-100">${cat.title}</span>
                 <span class="text-xs text-emerald-400 font-bold">▼ Aufklappen</span>
               </button>
               <div id="accordion-${idx}" class="accordion-content px-3 pb-3 space-y-2">
                 ${cat.subtasks.map(sub => `
                   <button type="button" onclick="addTaskWithAnim(event, '${escapeHtml(sub.title)}', ${sub.points})"
-                    class="w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-emerald-600/20 border border-slate-700/50 flex items-center justify-between text-left transition">
+                    class="smooth-btn w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-emerald-600/20 border border-slate-700/50 flex items-center justify-between text-left">
                     <span class="text-xs text-slate-200">↳ ${escapeHtml(sub.title)}</span>
                     <span class="text-xs font-bold text-emerald-300">+${sub.points} Pkt</span>
                   </button>
@@ -940,7 +1097,7 @@
         } else {
           return `
             <button type="button" onclick="addTaskWithAnim(event, '${escapeHtml(cat.title)}', ${cat.points})"
-              class="w-full p-3.5 rounded-2xl bg-slate-800/80 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 active:scale-[0.98] transition flex items-center justify-between text-left group">
+              class="smooth-btn w-full p-3.5 rounded-2xl bg-slate-800/80 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 flex items-center justify-between text-left group">
               <span class="text-sm font-medium text-slate-100 group-hover:text-white">${escapeHtml(cat.title)}</span>
               <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 ml-2 whitespace-nowrap">+${cat.points} Pkt</span>
             </button>
@@ -978,15 +1135,15 @@
       TASK_CATEGORIES.forEach(cat => {
         if (cat.isAccordion) {
           cat.subtasks.forEach(sub => {
-            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, false)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
+            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
           });
         } else if (cat.hasExtra) {
-          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, true)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)} (mit Zimmer-Option)</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, true)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)} (mit Zimmer-Option)</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
         } else {
-          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, false)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
         }
       });
-      html += `<button type="button" onclick="handleTodoSelect('CUSTOM', 15, false)" class="w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>✨ Eigene Aufgabe eingeben...</span><span>0–15 Pkt</span></button>`;
+      html += `<button type="button" onclick="handleTodoSelect('CUSTOM', 15, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>✨ Eigene Aufgabe eingeben...</span><span>0–15 Pkt</span></button>`;
       listContainer.innerHTML = html;
     }
 
@@ -1052,6 +1209,7 @@
       allTasks = tasksData || [];
       renderLeaderboard();
       renderActivityFeed();
+      knownTaskIds = new Set(allTasks.map(t => String(t.id)));
 
       const { data: chatData } = await db.from('family_chat').select('*').order('created_at', { ascending: true }).limit(50);
       chatMessages = (chatData || []).map(m => {
@@ -1059,10 +1217,12 @@
         return m;
       });
       renderChat();
+      knownChatIds = new Set(chatMessages.map(m => String(m.id)));
 
       const { data: todoData } = await db.from('family_todos').select('*').order('created_at', { ascending: false });
       todos = todoData || [];
       renderTodos();
+      knownTodoIds = new Set(todos.map(t => String(t.id)));
 
       const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
       if (rotData && rotData.length > 0) {
@@ -1160,18 +1320,19 @@
       }
       container.innerHTML = todos.map(t => {
         const pts = parseInt(t.points, 10) || 0;
+        const isNewEntry = knownTodoIds !== null && !knownTodoIds.has(String(t.id));
         const pointsBadge = pts > 0
           ? `<span class="text-[10px] text-emerald-400 mt-0.5 block">+${pts} Pkt (von ${escapeHtml(t.created_by)})</span>`
           : `<span class="text-[10px] text-slate-400 mt-0.5 block">0 Pkt • Notiz/To-Do (von ${escapeHtml(t.created_by)})</span>`;
         return `
-          <div class="flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 bg-slate-900/60 border-slate-800">
+          <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 bg-slate-900/60 border-slate-800">
             <div class="flex-1 min-w-0 pr-1">
               <span class="text-slate-200 font-medium block break-words">${escapeHtml(t.text)}</span>
               ${pointsBadge}
             </div>
             <div class="flex items-center gap-1 shrink-0 pt-0.5">
-              <button type="button" onclick="completeTodo(event, '${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${pts})" class="text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
-              <button type="button" onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
+              <button type="button" onclick="completeTodo(event, '${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${pts})" class="smooth-btn text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
+              <button type="button" onclick="deleteTodo('${t.id}')" class="smooth-btn text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
             </div>
           </div>
         `;
@@ -1206,7 +1367,7 @@
             <p class="text-base font-extrabold text-amber-300">${escapeHtml(person)}</p>
           </div>
         </div>
-        <button type="button" onclick="nextRotationPerson()" class="w-full py-2 px-3 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white font-semibold text-xs transition">
+        <button type="button" onclick="nextRotationPerson()" class="smooth-btn w-full py-2 px-3 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white font-semibold text-xs">
           Erledigt → Weitergeben an Nächsten ➔
         </button>
       `;
@@ -1281,6 +1442,8 @@
       const container = document.getElementById('chat-messages');
       container.innerHTML = chatMessages.map(m => {
         const timeString = formatDateTime(m.created_at);
+        const isFresh = isFreshEntry(m.created_at);
+        const isNewEntry = knownChatIds !== null && !knownChatIds.has(String(m.id));
 
         const reactions = m.reactions || {};
         const availableEmojis = ['👍', '❤️', '😂', '🔥', '👏'];
@@ -1288,18 +1451,21 @@
         const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
           const hasVoted = users.includes(getDisplayName(currentUser?.email));
           const namesList = users.join(', ');
-          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" title="Reagiert von: ${namesList}" class="text-[10px] px-2 py-0.5 rounded-md flex items-center gap-1.5 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span><span class="text-[9px] text-slate-400 font-normal">(${namesList})</span></button>`;
+          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" title="Reagiert von: ${namesList}" class="smooth-btn text-[10px] px-2 py-0.5 rounded-md flex items-center gap-1.5 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span><span class="text-[9px] text-slate-400 font-normal">(${namesList})</span></button>`;
         }).join('');
 
         const isPopupOpen = activeReactionPopupId === m.id;
 
         return `
-          <div onclick="handleMessageClick(event, '${m.id}')" class="relative bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
+          <div onclick="handleMessageClick(event, '${m.id}')" class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} relative bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-start gap-2 min-w-0">
                 ${renderAvatarBadge(m.user_name, 'sm')}
                 <div class="min-w-0 pt-0.5">
-                  <span class="font-bold text-emerald-400 block leading-none mb-1">${escapeHtml(m.user_name)}</span>
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <span class="font-bold text-emerald-400 leading-none">${escapeHtml(m.user_name)}</span>
+                    ${isFresh ? '<span class="text-[9px] font-semibold text-emerald-300/90 leading-none">• Neu</span>' : ''}
+                  </div>
                   <span class="text-slate-200 break-words block leading-snug">${escapeHtml(m.message)}</span>
                 </div>
               </div>
@@ -1368,8 +1534,8 @@
         const showStreak = entry.streak >= 2;
         
         return `
-          <div onclick="openProfile('${entry.name}')" class="cursor-pointer p-3.5 sm:p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500 transition">
-            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div onclick="openProfile('${entry.name}')" class="smooth-card cursor-pointer p-3.5 sm:p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'first-place-shimmer bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40 shadow-lg shadow-amber-500/10' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500">
+            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 relative z-10">
               <span class="text-lg sm:text-xl w-6 text-center font-bold shrink-0">${medal}</span>
               ${renderAvatarBadge(entry.name, 'md')}
               <div class="min-w-0">
@@ -1380,7 +1546,7 @@
                 ${showStreak ? `<span class="text-[11px] text-amber-400 font-medium block">🔥 ${entry.streak} Tage aktiv</span>` : ''}
               </div>
             </div>
-            <div class="text-right shrink-0 ml-2">
+            <div class="text-right shrink-0 ml-2 relative z-10">
               <span class="text-base sm:text-lg font-extrabold text-emerald-400">${entry.points}</span>
               <span class="text-[11px] text-slate-400 block sm:inline sm:ml-1">Punkte</span>
             </div>
@@ -1421,7 +1587,7 @@
             <span class="text-amber-300 font-bold">Guthaben: ${prof.coins || 0} 🪙</span>
           </div>
           ${isMe ? `
-            <button onclick="closeProfileModal(); openShopView();" class="mt-3 px-4 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold transition">
+            <button onclick="closeProfileModal(); openShopView();" class="smooth-btn mt-3 px-4 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold">
               🛍️ Avatar & Rahmen im Shop anpassen
             </button>
           ` : ''}
@@ -1479,20 +1645,25 @@
         const isOwn = currentUser && t.user_id === currentUser.id;
         const isWithinThreeDays = (nowMs - new Date(t.created_at).getTime()) <= threeDaysMs;
         const canDelete = isOwn && isWithinThreeDays;
+        const isFresh = isFreshEntry(t.created_at);
+        const isNewEntry = knownTaskIds !== null && !knownTaskIds.has(String(t.id));
 
         return `
-          <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
             <div class="flex items-start gap-2 min-w-0">
               ${renderAvatarBadge(t.user_name, 'sm')}
               <div class="min-w-0">
-                <span class="font-bold text-emerald-400 block leading-none mb-1">${escapeHtml(t.user_name)}</span>
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span class="font-bold text-emerald-400 leading-none">${escapeHtml(t.user_name)}</span>
+                  ${isFresh ? '<span class="text-[9px] font-semibold text-emerald-300/90 leading-none">• Neu</span>' : ''}
+                </div>
                 <p class="text-slate-200 leading-snug break-words">${escapeHtml(t.task_title)}</p>
                 <span class="text-[10px] text-slate-500">${dateTimeStr} Uhr</span>
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               <span class="text-emerald-300 font-bold whitespace-nowrap">+${t.points}</span>
-              ${canDelete ? `<button type="button" onclick="confirmDeleteTask('${t.id}')" class="text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen (möglich bis 3 Tage nach Eintrag)">✕</button>` : ''}
+              ${canDelete ? `<button type="button" onclick="confirmDeleteTask('${t.id}')" class="smooth-btn text-slate-500 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800" title="Löschen (möglich bis 3 Tage nach Eintrag)">✕</button>` : ''}
             </div>
           </div>
         `;
