@@ -255,18 +255,18 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v2.5)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v2.6)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Neue Aufgaben & Punkte:</b> <b>Küche helfen</b> (10 Pkt), <b>Frühstück bereiten</b> (15 Pkt), <b>Abendessen bereiten</b> (25 Pkt) sowie <b>+5 Pkt</b> bei eigenen Aufgaben.</span>
+          <span class="text-slate-200"><b>(Ich)-Markierung in der Bestenliste:</b> Dein eigener Name wird in der Bestenliste jetzt mit einem kleinen <b>(Ich)</b>-Badge hervorgehoben, damit du dich sofort erkennst.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>Chat & Shop:</b> Eigene Chat-Nachrichten können innerhalb von <b>1 Stunde</b> gelöscht werden, und im Shop gibt es jetzt den kostenlosen <b>🐺 Wolf</b>.</span>
+          <span class="text-slate-200"><b>Aufgaben, Chat & Shop:</b> Küche helfen (10 Pkt), Frühstück (15 Pkt), Abendessen (25 Pkt), +5 Pkt Option, Chat-Nachrichten 1 Std. löschbar und kostenloser <b>🐺 Wolf</b> im Shop.</span>
         </div>
       </div>
 
@@ -573,7 +573,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.5';
+    const CURRENT_VERSION = '2.6';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
     const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -1584,11 +1584,11 @@
       });
 
       const allNamesFromDb = Object.keys(userProfiles);
+      const myName = currentUser ? getDisplayName(currentUser.email) : null;
       
       ROTATION_MEMBERS.forEach(m => { if (!allNamesFromDb.includes(m)) allNamesFromDb.push(m); });
-      if (currentUser) {
-        const myName = getDisplayName(currentUser.email);
-        if (!allNamesFromDb.includes(myName)) allNamesFromDb.push(myName);
+      if (myName && !allNamesFromDb.includes(myName)) {
+        allNamesFromDb.push(myName);
       }
 
       const sorted = allNamesFromDb.map(name => {
@@ -1607,6 +1607,7 @@
         const isFirst = idx === 0 && entry.points > 0;
         const showCrown = isFirst && isFirstDay;
         const showStreak = entry.streak >= 2;
+        const isMe = myName && entry.name === myName;
         
         return `
           <div onclick="openProfile('${entry.name}')" class="smooth-card cursor-pointer p-3.5 sm:p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'first-place-shimmer bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40 shadow-lg shadow-amber-500/10' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500">
@@ -1616,6 +1617,7 @@
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
                   <span class="font-bold text-sm sm:text-base truncate ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
+                  ${isMe ? '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">(Ich)</span>' : ''}
                   ${showCrown ? '<span title="Monatssieger!" class="text-sm shrink-0">👑</span>' : ''}
                 </div>
                 ${showStreak ? `<span class="text-[11px] text-amber-400 font-medium block">🔥 ${entry.streak} Tage aktiv</span>` : ''}
@@ -1655,7 +1657,7 @@
           <div class="flex justify-center mb-3">
             ${renderAvatarBadge(userName, 'lg')}
           </div>
-          <h2 class="text-xl font-bold">${escapeHtml(userName)}</h2>
+          <h2 class="text-xl font-bold">${escapeHtml(userName)} ${isMe ? '<span class="text-xs font-semibold text-emerald-300">(Ich)</span>' : ''}</h2>
           <div class="flex items-center justify-center gap-3 mt-1.5 text-xs">
             <span class="text-emerald-400 font-semibold">Gesamt: ${totalPoints} Pkt</span>
             <span class="text-slate-600">•</span>
