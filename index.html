@@ -255,18 +255,18 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v2.4)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v2.5)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Satter Smaragd-Verlauf + iPhone-Fix:</b> Alle Geräte behalten den vollen grünen Verlauf, und auf dem iPhone bleibt er ohne weißes Flackern stabil.</span>
+          <span class="text-slate-200"><b>Neue Aufgaben & Punkte:</b> <b>Küche helfen</b> (10 Pkt), <b>Frühstück bereiten</b> (15 Pkt), <b>Abendessen bereiten</b> (25 Pkt) sowie <b>+5 Pkt</b> bei eigenen Aufgaben.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>Neue Gratis-Avatare im Shop:</b> Ab sofort stehen euch auch <b>🐦‍🔥, 🐥 und 🦢</b> kostenlos zur Auswahl!</span>
+          <span class="text-slate-200"><b>Chat & Shop:</b> Eigene Chat-Nachrichten können innerhalb von <b>1 Stunde</b> gelöscht werden, und im Shop gibt es jetzt den kostenlosen <b>🐺 Wolf</b>.</span>
         </div>
       </div>
 
@@ -449,6 +449,10 @@
               </label>
               <!-- EIGENE PUNKTE-PILLS -->
               <div class="inline-flex p-1 rounded-xl bg-slate-900/90 border border-slate-700/80 gap-1" role="group" aria-label="Punkte wählen">
+                <button type="button" onclick="selectCustomTaskPoints(5)" data-task-pts="5"
+                  class="task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
+                  +5 Pkt
+                </button>
                 <button type="button" onclick="selectCustomTaskPoints(10)" data-task-pts="10"
                   class="task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
                   +10 Pkt
@@ -516,7 +520,7 @@
         <h3 class="text-sm sm:text-base font-bold text-slate-100">🎭 Kostenlose Basis-Avatare</h3>
         <span class="text-[11px] text-emerald-400 font-semibold">Gratis für alle</span>
       </div>
-      <div id="shop-free-avatars" class="grid grid-cols-5 sm:grid-cols-10 gap-2.5"></div>
+      <div id="shop-free-avatars" class="grid grid-cols-4 sm:grid-cols-6 gap-2.5"></div>
     </section>
 
     <!-- KATEGORIE 2: AURA-RAHMEN -->
@@ -551,8 +555,8 @@
   <div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-sm p-6 rounded-3xl relative fade-in border border-red-500/30 text-center">
       <div class="w-12 h-12 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
-      <h3 class="text-base font-bold text-slate-100 mb-1">Eintrag löschen?</h3>
-      <p class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
+      <h3 id="confirm-modal-title" class="text-base font-bold text-slate-100 mb-1">Eintrag löschen?</h3>
+      <p id="confirm-modal-desc" class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
       
       <div class="flex gap-2">
         <button type="button" onclick="closeConfirmModal()" class="smooth-btn flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
@@ -569,10 +573,11 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.4';
+    const CURRENT_VERSION = '2.5';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
+    const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
-    const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀', '🐦‍🔥', '🐥', '🦢'];
+    const FREE_AVATARS = ['👤', '🦁', '🐼', '🦊', '🐱', '🐶', '🚀', '🐦‍🔥', '🐥', '🦢', '🐺'];
     
     const VIP_AVATARS = [
       { id: '🇹🇷', name: 'Türkei Flagge', price: 25 },
@@ -597,7 +602,9 @@
     ];
 
     const TASK_CATEGORIES = [
-      { title: '🍳 Beim Essen bereiten helfen', points: 25 },
+      { title: '🍳 Küche helfen', points: 10 },
+      { title: '🥐 Frühstück bereiten', points: 15 },
+      { title: '🍲 Abendessen bereiten', points: 25 },
       { title: '🚽 Toilette putzen', points: 25 },
       { title: '🧽 Staub wischen', points: 20 },
       { title: '🧹 Boden wischen / Staub saugen', points: 30, hasExtra: true },
@@ -644,6 +651,15 @@
       if (!dateInput) return false;
       const diff = Date.now() - new Date(dateInput).getTime();
       return diff >= 0 && diff <= FRESH_HIGHLIGHT_MS;
+    }
+
+    function canDeleteChatMessage(msg) {
+      if (!msg || !currentUser) return false;
+      const myName = getDisplayName(currentUser.email);
+      if (msg.user_name !== myName) return false;
+      if (!msg.created_at) return false;
+      const ageMs = Date.now() - new Date(msg.created_at).getTime();
+      return ageMs >= 0 && ageMs <= CHAT_DELETE_WINDOW_MS;
     }
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -749,7 +765,7 @@
         el.style.setProperty('--tx-mid', p.midX);
         el.style.setProperty('--ty-mid', p.midY);
         el.style.setProperty('--tx-end', p.endX);
-        el.style.setProperty('--ty-end', p.ty-end);
+        el.style.setProperty('--ty-end', p.endY);
         previewCard.appendChild(el);
         setTimeout(() => el.remove(), 900);
       });
@@ -788,6 +804,9 @@
         }
       }
 
+      document.getElementById('confirm-modal-title').textContent = 'Eintrag löschen?';
+      document.getElementById('confirm-modal-desc').textContent = 'Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?';
+
       const modal = document.getElementById('confirm-modal');
       const confirmBtn = document.getElementById('confirm-delete-btn');
       modal.classList.remove('hidden');
@@ -795,6 +814,37 @@
         modal.classList.add('hidden');
         await db.from('family_tasks').delete().eq('id', id);
         showToast('Eintrag erfolgreich gelöscht.');
+      };
+    }
+
+    function confirmDeleteChatMessage(event, id) {
+      event.stopPropagation();
+      const msg = chatMessages.find(item => String(item.id) === String(id));
+      if (!msg) return;
+
+      const myName = getDisplayName(currentUser?.email);
+      if (msg.user_name !== myName) {
+        return showToast('Du kannst nur eigene Nachrichten löschen.', true);
+      }
+
+      if (!canDeleteChatMessage(msg)) {
+        return showToast('Nachrichten können nur bis 1 Stunde nach dem Versenden gelöscht werden.', true);
+      }
+
+      document.getElementById('confirm-modal-title').textContent = 'Nachricht löschen?';
+      document.getElementById('confirm-modal-desc').textContent = 'Möchtest du diese eigene Nachricht aus dem Familien-Chat löschen?';
+
+      const modal = document.getElementById('confirm-modal');
+      const confirmBtn = document.getElementById('confirm-delete-btn');
+      modal.classList.remove('hidden');
+      confirmBtn.onclick = async () => {
+        modal.classList.add('hidden');
+        const { error } = await db.from('family_chat').delete().eq('id', id);
+        if (error) return showToast('Fehler beim Löschen: ' + error.message, true);
+        chatMessages = chatMessages.filter(m => String(m.id) !== String(id));
+        if (activeReactionPopupId === id) activeReactionPopupId = null;
+        renderChat();
+        showToast('Nachricht gelöscht.');
       };
     }
 
@@ -1465,6 +1515,7 @@
         const timeString = formatDateTime(m.created_at);
         const isFresh = isFreshEntry(m.created_at);
         const isNewEntry = knownChatIds !== null && !knownChatIds.has(String(m.id));
+        const canDeleteMsg = canDeleteChatMessage(m);
 
         const reactions = m.reactions || {};
         const availableEmojis = ['👍', '❤️', '😂', '🔥', '👏'];
@@ -1490,7 +1541,10 @@
                   <span class="text-slate-200 break-words block leading-snug">${escapeHtml(m.message)}</span>
                 </div>
               </div>
-              <span class="text-[10px] text-slate-500 shrink-0">${timeString}</span>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-[10px] text-slate-500">${timeString}</span>
+                ${canDeleteMsg ? `<button type="button" onclick="confirmDeleteChatMessage(event, '${m.id}')" class="smooth-btn text-slate-500 hover:text-red-400 text-[11px] px-1.5 py-0.5 rounded bg-slate-800/90" title="Eigene Nachricht löschen (bis 1 Std. nach Versand)">✕</button>` : ''}
+              </div>
             </div>
             
             ${Object.keys(reactions).length > 0 ? `
