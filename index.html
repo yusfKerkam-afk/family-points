@@ -262,11 +262,11 @@
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Abwasch nach Topfanzahl:</b> Beim Abwasch kannst du jetzt direkt zwischen <b>1 Topf (+10 Pkt)</b>, <b>2–3 Töpfe (+15 Pkt)</b> und dem kompletten Abwasch wählen.</span>
+          <span class="text-slate-200"><b>Abwasch nach Topfanzahl:</b> Beim Abwasch kannst du jetzt direkt zwischen <b>1 Topf (+10 Pkt)</b> und <b>2–3 Töpfe oder mehr (+15 Pkt)</b> wählen.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>Schnell & übersichtlich:</b> Aufklappbar direkt bei den Aufgaben sowie im To-Do-Menü verfügbar.</span>
+          <span class="text-slate-200"><b>To-Do-Liste:</b> Dort steht jetzt übersichtlich <b>Töpfe waschen (10 Pkt)</b> zur Auswahl.</span>
         </div>
       </div>
 
@@ -609,12 +609,12 @@
       { title: '🧽 Staub wischen', points: 20 },
       { title: '🧹 Boden wischen / Staub saugen', points: 30, hasExtra: true },
       {
-        title: '🍽️ Abwasch (Töpfe & Geschirr)',
+        title: '🍽️ Abwasch (Töpfe waschen)',
         isAccordion: true,
+        todoOverride: { title: '🍽️ Töpfe waschen', points: 10 },
         subtasks: [
           { title: 'Abwasch: 1 Topf', points: 10 },
-          { title: 'Abwasch: 2–3 Töpfe', points: 15 },
-          { title: 'Abwasch (komplett / mehr)', points: 35 }
+          { title: 'Abwasch: 2–3 Töpfe oder mehr', points: 15 }
         ]
       },
       {
@@ -1230,7 +1230,9 @@
       const listContainer = document.getElementById('todo-selection-list');
       let html = '';
       TASK_CATEGORIES.forEach(cat => {
-        if (cat.isAccordion) {
+        if (cat.todoOverride) {
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.todoOverride.title)}', ${cat.todoOverride.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.todoOverride.title)}</span><span class="text-emerald-400 font-bold">${cat.todoOverride.points} Pkt</span></button>`;
+        } else if (cat.isAccordion) {
           cat.subtasks.forEach(sub => {
             html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
           });
