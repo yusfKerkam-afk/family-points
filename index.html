@@ -161,7 +161,7 @@
       opacity: 0;
     }
     .accordion-content.open {
-      max-height: 300px;
+      max-height: 360px;
       opacity: 1;
     }
     @keyframes floatUp {
@@ -255,18 +255,18 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v2.7)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v2.8)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Namens-Fix:</b> Doppelte oder falsch geschriebene Namen (z. B. „Ibo Boss“) werden jetzt automatisch dem richtigen Mitglied zugeordnet.</span>
+          <span class="text-slate-200"><b>Abwasch nach Topfanzahl:</b> Beim Abwasch kannst du jetzt direkt zwischen <b>1 Topf (+10 Pkt)</b>, <b>2–3 Töpfe (+15 Pkt)</b> und dem kompletten Abwasch wählen.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>Bestenliste:</b> Jedes Mitglied erscheint nur noch einmal, Punkte bleiben unverändert.</span>
+          <span class="text-slate-200"><b>Schnell & übersichtlich:</b> Aufklappbar direkt bei den Aufgaben sowie im To-Do-Menü verfügbar.</span>
         </div>
       </div>
 
@@ -573,7 +573,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.7';
+    const CURRENT_VERSION = '2.8';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
     const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -608,7 +608,15 @@
       { title: '🚽 Toilette putzen', points: 25 },
       { title: '🧽 Staub wischen', points: 20 },
       { title: '🧹 Boden wischen / Staub saugen', points: 30, hasExtra: true },
-      { title: '🍽️ Abwasch (z. B. Töpfe waschen)', points: 35 },
+      {
+        title: '🍽️ Abwasch (Töpfe & Geschirr)',
+        isAccordion: true,
+        subtasks: [
+          { title: 'Abwasch: 1 Topf', points: 10 },
+          { title: 'Abwasch: 2–3 Töpfe', points: 15 },
+          { title: 'Abwasch (komplett / mehr)', points: 35 }
+        ]
+      },
       {
         title: '🧺 Wäsche',
         isAccordion: true,
@@ -1170,7 +1178,7 @@
             <div class="border border-slate-700/80 rounded-2xl bg-slate-800/40 overflow-hidden">
               <button type="button" onclick="toggleAccordion(${idx})" class="smooth-btn w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/80">
                 <span class="text-sm font-medium text-slate-100">${cat.title}</span>
-                <span class="text-xs text-emerald-400 font-bold">▼ Aufklappen</span>
+                <span class="text-xs text-emerald-400 font-bold">▼ Auswahl</span>
               </button>
               <div id="accordion-${idx}" class="accordion-content px-3 pb-3 space-y-2">
                 ${cat.subtasks.map(sub => `
@@ -1290,7 +1298,6 @@
       const { data: profilesData } = await db.from('family_profiles').select('*');
       userProfiles = {};
       (profilesData || []).forEach(p => {
-        // Alias-Profile (z. B. "Ibo Boss") komplett ignorieren
         if (isAliasName(p.user_name)) return;
         userProfiles[p.user_name] = p;
       });
@@ -1608,7 +1615,6 @@
 
       const myName = currentUser ? getDisplayName(currentUser.email) : null;
 
-      // Set verhindert Doppelte; Alias-Namen werden zum echten Namen umgewandelt
       const nameSet = new Set(Object.keys(userProfiles).map(normalizeName));
       ROTATION_MEMBERS.forEach(m => nameSet.add(normalizeName(m)));
       if (myName) nameSet.add(myName);
