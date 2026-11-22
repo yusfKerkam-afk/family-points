@@ -255,18 +255,18 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v2.8)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v2.9)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Abwasch nach Topfanzahl:</b> Beim Abwasch kannst du jetzt direkt zwischen <b>1 Topf (+10 Pkt)</b> und <b>2–3 Töpfe oder mehr (+15 Pkt)</b> wählen.</span>
+          <span class="text-slate-200"><b>Boden wischen / Staub saugen:</b> Jetzt mit Unterpunkten für <b>2–3 Zimmer (+15 Pkt)</b> und <b>ganzes Haus / mehr (+30 Pkt)</b>.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>To-Do-Liste:</b> Dort steht jetzt übersichtlich <b>Töpfe waschen (10 Pkt)</b> zur Auswahl.</span>
+          <span class="text-slate-200"><b>To-Dos mit Zimmer-Angabe:</b> Beide Stufen lassen sich im To-Do-Menü wie gewohnt mit konkreten Zimmern ergänzen.</span>
         </div>
       </div>
 
@@ -573,7 +573,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.8';
+    const CURRENT_VERSION = '2.9';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
     const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -607,7 +607,14 @@
       { title: '🍲 Abendessen bereiten', points: 25 },
       { title: '🚽 Toilette putzen', points: 25 },
       { title: '🧽 Staub wischen', points: 20 },
-      { title: '🧹 Boden wischen / Staub saugen', points: 30, hasExtra: true },
+      {
+        title: '🧹 Boden wischen / Staub saugen',
+        isAccordion: true,
+        subtasks: [
+          { title: '🧹 Boden wischen / Staub saugen (2–3 Zimmer)', points: 15, hasExtra: true },
+          { title: '🧹 Boden wischen / Staub saugen (ganzes Haus / mehr)', points: 30, hasExtra: true }
+        ]
+      },
       {
         title: '🍽️ Abwasch (Töpfe waschen)',
         isAccordion: true,
@@ -1234,7 +1241,9 @@
           html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.todoOverride.title)}', ${cat.todoOverride.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.todoOverride.title)}</span><span class="text-emerald-400 font-bold">${cat.todoOverride.points} Pkt</span></button>`;
         } else if (cat.isAccordion) {
           cat.subtasks.forEach(sub => {
-            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(sub.title)}</span><span class="text-emerald-400 font-bold">${sub.points} Pkt</span></button>`;
+            const subHasExtra = !!sub.hasExtra;
+            const extraHint = subHasExtra ? ' (mit Zimmer-Option)' : '';
+            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, ${subHasExtra})" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium gap-2"><span>${escapeHtml(sub.title)}${extraHint}</span><span class="text-emerald-400 font-bold whitespace-nowrap">${sub.points} Pkt</span></button>`;
           });
         } else if (cat.hasExtra) {
           html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, true)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)} (mit Zimmer-Option)</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
@@ -1292,7 +1301,7 @@
 
     async function confirmExtraTodo(baseTitle, points) {
       const roomVal = document.getElementById('todo-extra-input').value.trim();
-      const finalTitle = roomVal ? `${baseTitle} (${roomVal})` : baseTitle;
+      const finalTitle = roomVal ? `${baseTitle} – ${roomVal}` : baseTitle;
       await addTodoItem(finalTitle, points);
     }
 
