@@ -255,18 +255,18 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v2.6)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v2.7)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>(Ich)-Markierung in der Bestenliste:</b> Dein eigener Name wird in der Bestenliste jetzt mit einem kleinen <b>(Ich)</b>-Badge hervorgehoben, damit du dich sofort erkennst.</span>
+          <span class="text-slate-200"><b>Namens-Fix:</b> Doppelte oder falsch geschriebene Namen (z. B. „Ibo Boss“) werden jetzt automatisch dem richtigen Mitglied zugeordnet.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>Aufgaben, Chat & Shop:</b> Küche helfen (10 Pkt), Frühstück (15 Pkt), Abendessen (25 Pkt), +5 Pkt Option, Chat-Nachrichten 1 Std. löschbar und kostenloser <b>🐺 Wolf</b> im Shop.</span>
+          <span class="text-slate-200"><b>Bestenliste:</b> Jedes Mitglied erscheint nur noch einmal, Punkte bleiben unverändert.</span>
         </div>
       </div>
 
@@ -573,7 +573,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '2.6';
+    const CURRENT_VERSION = '2.7';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
     const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -631,12 +631,28 @@
       'esma@gmail.com': 'Esma',
     };
 
+    // Falsch geschriebene / doppelte Namen -> richtiger Name
+    const NAME_ALIASES = {
+      'ibo boss': 'Iboboss',
+      'iboboss': 'Iboboss'
+    };
+
+    function normalizeName(name) {
+      if (!name) return name;
+      const key = String(name).trim().toLowerCase();
+      return NAME_ALIASES[key] || name;
+    }
+
+    function isAliasName(name) {
+      return !!name && normalizeName(name) !== name;
+    }
+
     function getDisplayName(email) {
       if (!email) return 'Mitglied';
       const cleanEmail = email.trim().toLowerCase();
       if (USER_DISPLAY_NAMES[cleanEmail]) return USER_DISPLAY_NAMES[cleanEmail];
       const rawName = cleanEmail.split('@')[0];
-      return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      return normalizeName(rawName.charAt(0).toUpperCase() + rawName.slice(1));
     }
 
     function formatDateTime(dateInput) {
@@ -656,7 +672,7 @@
     function canDeleteChatMessage(msg) {
       if (!msg || !currentUser) return false;
       const myName = getDisplayName(currentUser.email);
-      if (msg.user_name !== myName) return false;
+      if (normalizeName(msg.user_name) !== myName) return false;
       if (!msg.created_at) return false;
       const ageMs = Date.now() - new Date(msg.created_at).getTime();
       return ageMs >= 0 && ageMs <= CHAT_DELETE_WINDOW_MS;
@@ -704,7 +720,7 @@
     }
 
     function renderAvatarBadge(userName, size = 'md') {
-      const prof = userProfiles[userName] || { avatar: '👤', frame: 'none' };
+      const prof = userProfiles[normalizeName(userName)] || { avatar: '👤', frame: 'none' };
       const avatar = prof.avatar || '👤';
       const frameClass = prof.frame && prof.frame !== 'none' ? prof.frame : 'frame-none';
 
@@ -823,7 +839,7 @@
       if (!msg) return;
 
       const myName = getDisplayName(currentUser?.email);
-      if (msg.user_name !== myName) {
+      if (normalizeName(msg.user_name) !== myName) {
         return showToast('Du kannst nur eigene Nachrichten löschen.', true);
       }
 
@@ -921,6 +937,7 @@
 
     async function ensureCurrentUserProfile() {
       const myName = getDisplayName(currentUser.email);
+      if (isAliasName(myName)) return;
       if (!userProfiles[myName]) {
         const defaultProfile = {
           user_name: myName,
@@ -966,7 +983,8 @@
       allTasks.forEach(t => {
         const d = new Date(t.created_at);
         if (d.getMonth() === prevMonth && d.getFullYear() === prevYear) {
-          scores[t.user_name] = (scores[t.user_name] || 0) + t.points;
+          const n = normalizeName(t.user_name);
+          scores[n] = (scores[n] || 0) + t.points;
         }
       });
 
@@ -1272,6 +1290,8 @@
       const { data: profilesData } = await db.from('family_profiles').select('*');
       userProfiles = {};
       (profilesData || []).forEach(p => {
+        // Alias-Profile (z. B. "Ibo Boss") komplett ignorieren
+        if (isAliasName(p.user_name)) return;
         userProfiles[p.user_name] = p;
       });
       updateHeaderUserUI();
@@ -1392,9 +1412,10 @@
       container.innerHTML = todos.map(t => {
         const pts = parseInt(t.points, 10) || 0;
         const isNewEntry = knownTodoIds !== null && !knownTodoIds.has(String(t.id));
+        const creator = normalizeName(t.created_by);
         const pointsBadge = pts > 0
-          ? `<span class="text-[10px] text-emerald-400 mt-0.5 block">+${pts} Pkt (von ${escapeHtml(t.created_by)})</span>`
-          : `<span class="text-[10px] text-slate-400 mt-0.5 block">0 Pkt • Notiz/To-Do (von ${escapeHtml(t.created_by)})</span>`;
+          ? `<span class="text-[10px] text-emerald-400 mt-0.5 block">+${pts} Pkt (von ${escapeHtml(creator)})</span>`
+          : `<span class="text-[10px] text-slate-400 mt-0.5 block">0 Pkt • Notiz/To-Do (von ${escapeHtml(creator)})</span>`;
         return `
           <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 bg-slate-900/60 border-slate-800">
             <div class="flex-1 min-w-0 pr-1">
@@ -1512,6 +1533,7 @@
     function renderChat() {
       const container = document.getElementById('chat-messages');
       container.innerHTML = chatMessages.map(m => {
+        const uName = normalizeName(m.user_name);
         const timeString = formatDateTime(m.created_at);
         const isFresh = isFreshEntry(m.created_at);
         const isNewEntry = knownChatIds !== null && !knownChatIds.has(String(m.id));
@@ -1522,8 +1544,8 @@
         
         const reactionsHtml = Object.entries(reactions).map(([emoji, users]) => {
           const hasVoted = users.includes(getDisplayName(currentUser?.email));
-          const namesList = users.join(', ');
-          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" title="Reagiert von: ${namesList}" class="smooth-btn text-[10px] px-2 py-0.5 rounded-md flex items-center gap-1.5 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span><span class="text-[9px] text-slate-400 font-normal">(${namesList})</span></button>`;
+          const namesList = users.map(normalizeName).join(', ');
+          return `<button onclick="toggleReaction(event, '${m.id}', '${emoji}')" title="Reagiert von: ${escapeHtml(namesList)}" class="smooth-btn text-[10px] px-2 py-0.5 rounded-md flex items-center gap-1.5 ${hasVoted ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-800/80 text-slate-300'}"><span>${emoji}</span><span>${users.length}</span><span class="text-[9px] text-slate-400 font-normal">(${escapeHtml(namesList)})</span></button>`;
         }).join('');
 
         const isPopupOpen = activeReactionPopupId === m.id;
@@ -1532,10 +1554,10 @@
           <div onclick="handleMessageClick(event, '${m.id}')" class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} relative bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-start gap-2 min-w-0">
-                ${renderAvatarBadge(m.user_name, 'sm')}
+                ${renderAvatarBadge(uName, 'sm')}
                 <div class="min-w-0 pt-0.5">
                   <div class="flex items-center gap-1.5 mb-1">
-                    <span class="font-bold text-emerald-400 leading-none">${escapeHtml(m.user_name)}</span>
+                    <span class="font-bold text-emerald-400 leading-none">${escapeHtml(uName)}</span>
                     ${isFresh ? '<span class="text-[9px] font-semibold text-emerald-300/90 leading-none">• Neu</span>' : ''}
                   </div>
                   <span class="text-slate-200 break-words block leading-snug">${escapeHtml(m.message)}</span>
@@ -1575,23 +1597,24 @@
       allTasks.forEach(t => {
         const d = new Date(t.created_at);
         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-          monthlyScores[t.user_name] = (monthlyScores[t.user_name] || 0) + t.points;
+          const n = normalizeName(t.user_name);
+          monthlyScores[n] = (monthlyScores[n] || 0) + t.points;
           
           const dayStr = d.toISOString().split('T')[0];
-          if (!monthlyStreaks[t.user_name]) monthlyStreaks[t.user_name] = new Set();
-          monthlyStreaks[t.user_name].add(dayStr);
+          if (!monthlyStreaks[n]) monthlyStreaks[n] = new Set();
+          monthlyStreaks[n].add(dayStr);
         }
       });
 
-      const allNamesFromDb = Object.keys(userProfiles);
       const myName = currentUser ? getDisplayName(currentUser.email) : null;
-      
-      ROTATION_MEMBERS.forEach(m => { if (!allNamesFromDb.includes(m)) allNamesFromDb.push(m); });
-      if (myName && !allNamesFromDb.includes(myName)) {
-        allNamesFromDb.push(myName);
-      }
 
-      const sorted = allNamesFromDb.map(name => {
+      // Set verhindert Doppelte; Alias-Namen werden zum echten Namen umgewandelt
+      const nameSet = new Set(Object.keys(userProfiles).map(normalizeName));
+      ROTATION_MEMBERS.forEach(m => nameSet.add(normalizeName(m)));
+      if (myName) nameSet.add(myName);
+      const allNames = Array.from(nameSet);
+
+      const sorted = allNames.map(name => {
         const points = monthlyScores[name] || 0;
         const streakSet = monthlyStreaks[name];
         const streak = streakSet ? streakSet.size : 0;
@@ -1636,7 +1659,8 @@
       const modal = document.getElementById('profile-modal');
       const content = document.getElementById('profile-content');
 
-      const userTasks = allTasks.filter(t => t.user_name === userName);
+      userName = normalizeName(userName);
+      const userTasks = allTasks.filter(t => normalizeName(t.user_name) === userName);
       const totalPoints = userTasks.reduce((acc, curr) => acc + curr.points, 0);
       const prof = userProfiles[userName] || { coins: 0 };
 
@@ -1718,6 +1742,7 @@
       const nowMs = Date.now();
 
       feed.innerHTML = recent.map(t => {
+        const uName = normalizeName(t.user_name);
         const dateTimeStr = formatDateTime(t.created_at);
         const isOwn = currentUser && t.user_id === currentUser.id;
         const isWithinThreeDays = (nowMs - new Date(t.created_at).getTime()) <= threeDaysMs;
@@ -1728,10 +1753,10 @@
         return `
           <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
             <div class="flex items-start gap-2 min-w-0">
-              ${renderAvatarBadge(t.user_name, 'sm')}
+              ${renderAvatarBadge(uName, 'sm')}
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
-                  <span class="font-bold text-emerald-400 leading-none">${escapeHtml(t.user_name)}</span>
+                  <span class="font-bold text-emerald-400 leading-none">${escapeHtml(uName)}</span>
                   ${isFresh ? '<span class="text-[9px] font-semibold text-emerald-300/90 leading-none">• Neu</span>' : ''}
                 </div>
                 <p class="text-slate-200 leading-snug break-words">${escapeHtml(t.task_title)}</p>
