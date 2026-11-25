@@ -75,6 +75,63 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     }
 
+    /* EDLES PROFIL-FENSTER DESIGN (Verläufe & dezente schwebende Partikel) */
+    .profile-card-luxury {
+      background:
+        radial-gradient(130% 80% at 50% -10%, rgba(16, 185, 129, 0.22) 0%, rgba(251, 191, 36, 0.08) 42%, transparent 72%),
+        linear-gradient(155deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.97) 58%, rgba(6, 78, 59, 0.42));
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      box-shadow:
+        0 25px 55px -12px rgba(0, 0, 0, 0.75),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .profile-ambient-glow {
+      position: absolute;
+      top: -65px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 150px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.24) 0%, rgba(251, 191, 36, 0.10) 45%, transparent 72%);
+      filter: blur(18px);
+      pointer-events: none;
+      animation: profileAuraPulse 6s ease-in-out infinite;
+    }
+
+    @keyframes profileAuraPulse {
+      0%, 100% { opacity: 0.75; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+    }
+
+    .profile-particle {
+      position: absolute;
+      border-radius: 9999px;
+      pointer-events: none;
+      opacity: 0;
+      animation: profileParticleFloat var(--dur, 7s) ease-in-out var(--delay, 0s) infinite;
+    }
+
+    @keyframes profileParticleFloat {
+      0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.75);
+      }
+      25% {
+        opacity: var(--max-op, 0.55);
+      }
+      75% {
+        opacity: var(--max-op, 0.55);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-28px) scale(1.1);
+      }
+    }
+
     /* SANFTE HOVER- & TAP-ÜBERGÄNGE */
     .smooth-btn {
       transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
@@ -254,19 +311,23 @@
   <div id="changelog-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
-        <span class="text-2xl">🔥</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v3.0)</h3>
+        <span class="text-2xl">✨</span>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v3.1)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
-          <span class="text-amber-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Echte Streaks:</b> Die Flamme 🔥 zählt jetzt nur noch <b>direkt aufeinanderfolgende Tage</b> (z. B. gestern + heute). Wenn ein Tag ausfällt, startet der Streak wieder neu!</span>
+          <span class="text-emerald-400 font-bold">•</span>
+          <span class="text-slate-200"><b>Abwasch angepasst:</b> <b>1 Topf</b> gibt <b>+10 Pkt</b> und <b>2 Töpfe oder mehr</b> gibt jetzt <b>+20 Pkt</b>.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Boden wischen / Staub saugen:</b> Jetzt mit Unterpunkten für <b>2–3 Zimmer (+15 Pkt)</b> und <b>ganzes Haus / mehr (+30 Pkt)</b>.</span>
+          <span class="text-slate-200"><b>Toilette putzen:</b> Jetzt aufgeteilt in <b>1 Toilette (+10 Pkt)</b> und <b>2 Toiletten (+20 Pkt)</b> – auch bei den To-Dos.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-amber-300 font-bold">•</span>
+          <span class="text-slate-200"><b>Edle Profil-Ansicht:</b> Wenn du auf ein Profil klickst, erscheint es jetzt mit sanften Farbverläufen und feinen Licht-Partikeln.</span>
         </div>
       </div>
 
@@ -277,10 +338,20 @@
   </div>
 
   <!-- PROFIL MODAL -->
-  <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card w-full max-w-lg p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
-      <button onclick="closeProfileModal()" class="smooth-btn absolute top-4 right-4 text-slate-400 hover:text-white text-lg px-2.5 py-1 bg-slate-800 rounded-xl">✕</button>
-      <div id="profile-content"></div>
+  <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeProfileModal()">
+    <div class="profile-card-luxury w-full max-w-lg p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto overflow-x-hidden" onclick="event.stopPropagation()">
+      <div class="profile-ambient-glow" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-44 overflow-hidden rounded-t-3xl" aria-hidden="true">
+        <span class="profile-particle bg-emerald-300/80" style="width:4px;height:4px;left:18%;top:58%;--dur:6.5s;--delay:0s;--max-op:0.55;"></span>
+        <span class="profile-particle bg-amber-300/80" style="width:3px;height:3px;left:31%;top:32%;--dur:7.5s;--delay:1.4s;--max-op:0.6;"></span>
+        <span class="profile-particle bg-emerald-200/75" style="width:3px;height:3px;left:67%;top:28%;--dur:6.8s;--delay:0.8s;--max-op:0.5;"></span>
+        <span class="profile-particle bg-amber-200/80" style="width:4px;height:4px;left:80%;top:54%;--dur:8s;--delay:2.1s;--max-op:0.55;"></span>
+        <span class="profile-particle bg-teal-300/75" style="width:2.5px;height:2.5px;left:48%;top:22%;--dur:7.2s;--delay:2.8s;--max-op:0.45;"></span>
+        <span class="profile-particle bg-emerald-400/70" style="width:3px;height:3px;left:24%;top:74%;--dur:8.4s;--delay:1.9s;--max-op:0.4;"></span>
+        <span class="profile-particle bg-amber-300/70" style="width:2.5px;height:2.5px;left:74%;top:72%;--dur:7.6s;--delay:3.2s;--max-op:0.45;"></span>
+      </div>
+      <button onclick="closeProfileModal()" class="smooth-btn relative z-10 float-right text-slate-300 hover:text-white text-lg px-2.5 py-1 bg-slate-800/80 border border-slate-700/70 rounded-xl">✕</button>
+      <div id="profile-content" class="relative z-10 clear-both"></div>
     </div>
   </div>
 
@@ -573,7 +644,7 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '3.0';
+    const CURRENT_VERSION = '3.1';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
     const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -605,7 +676,14 @@
       { title: '🍳 Küche helfen', points: 10 },
       { title: '🥐 Frühstück bereiten', points: 15 },
       { title: '🍲 Abendessen bereiten', points: 25 },
-      { title: '🚽 Toilette putzen', points: 25 },
+      {
+        title: '🚽 Toilette putzen',
+        isAccordion: true,
+        subtasks: [
+          { title: '🚽 1 Toilette putzen', points: 10 },
+          { title: '🚽 2 Toiletten putzen', points: 20 }
+        ]
+      },
       { title: '🧽 Staub wischen', points: 20 },
       {
         title: '🧹 Boden wischen / Staub saugen',
@@ -618,10 +696,9 @@
       {
         title: '🍽️ Abwasch (Töpfe waschen)',
         isAccordion: true,
-        todoOverride: { title: '🍽️ Töpfe waschen', points: 10 },
         subtasks: [
           { title: 'Abwasch: 1 Topf', points: 10 },
-          { title: 'Abwasch: 2–3 Töpfe oder mehr', points: 15 }
+          { title: 'Abwasch: 2 Töpfe oder mehr', points: 20 }
         ]
       },
       {
@@ -1731,37 +1808,37 @@
           <div class="flex justify-center mb-3">
             ${renderAvatarBadge(userName, 'lg')}
           </div>
-          <h2 class="text-xl font-bold">${escapeHtml(userName)} ${isMe ? '<span class="text-xs font-semibold text-emerald-300">(Ich)</span>' : ''}</h2>
+          <h2 class="text-xl font-bold bg-gradient-to-r from-white via-emerald-100 to-amber-200 bg-clip-text text-transparent">${escapeHtml(userName)} ${isMe ? '<span class="text-xs font-semibold text-emerald-300">(Ich)</span>' : ''}</h2>
           <div class="flex items-center justify-center gap-3 mt-1.5 text-xs">
             <span class="text-emerald-400 font-semibold">Gesamt: ${totalPoints} Pkt</span>
             <span class="text-slate-600">•</span>
             <span class="text-amber-300 font-bold">Guthaben: ${prof.coins || 0} 🪙</span>
           </div>
           ${isMe ? `
-            <button onclick="closeProfileModal(); openShopView();" class="smooth-btn mt-3 px-4 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold">
+            <button onclick="closeProfileModal(); openShopView();" class="smooth-btn mt-3 px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-emerald-500/20 hover:from-amber-500/35 hover:to-emerald-500/30 border border-amber-400/40 text-amber-200 text-xs font-bold shadow-sm">
               🛍️ Avatar & Rahmen im Shop anpassen
             </button>
           ` : ''}
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-6">
-          <div class="glass p-3.5 rounded-2xl text-center">
+          <div class="bg-gradient-to-br from-slate-900/75 via-slate-900/60 to-emerald-950/35 border border-emerald-500/20 p-3.5 rounded-2xl text-center">
             <span class="block text-xs text-slate-400">Lieblingsaufgabe</span>
-            <span class="text-xs font-bold text-slate-200 mt-1 block truncate">${escapeHtml(favoriteTask)}</span>
+            <span class="text-xs font-bold text-slate-100 mt-1 block truncate">${escapeHtml(favoriteTask)}</span>
           </div>
-          <div class="glass p-3.5 rounded-2xl text-center">
+          <div class="bg-gradient-to-br from-slate-900/75 via-slate-900/60 to-amber-950/25 border border-amber-400/20 p-3.5 rounded-2xl text-center">
             <span class="block text-xs text-slate-400">Aktivitäten (7 Tage)</span>
             <span class="text-sm font-extrabold text-emerald-400 mt-1 block">${weeklyTasks.length} erledigt</span>
           </div>
         </div>
 
-        <h3 class="text-sm font-bold mb-3">📋 Letzte Aktivitäten von ${escapeHtml(userName)}</h3>
+        <h3 class="text-sm font-bold mb-3 text-slate-100">📋 Letzte Aktivitäten von ${escapeHtml(userName)}</h3>
         <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
           ${userTasks.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">Noch keine Aktivitäten.</p>' : ''}
           ${userTasks.slice(0, 15).map(t => {
             const dateStr = formatDateTime(t.created_at);
             return `
-              <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+              <div class="bg-gradient-to-r from-slate-900/75 to-slate-900/45 p-2.5 rounded-xl border border-slate-800/90 flex justify-between items-center text-xs">
                 <div>
                   <p class="text-slate-200">${escapeHtml(t.task_title)}</p>
                   <span class="text-[10px] text-slate-500">${dateStr} Uhr</span>
