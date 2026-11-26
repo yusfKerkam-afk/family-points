@@ -509,15 +509,8 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 min-w-0">
       
-      <!-- LINKS: Dienstplan, To-Do-Liste & Chat -->
+      <!-- LINKS: To-Do-Liste & Chat -->
       <div class="lg:col-span-3 space-y-5 sm:space-y-6 min-w-0">
-        
-        <!-- ROTATIONS-DIENSTPLAN -->
-        <section class="glass rounded-3xl p-4 sm:p-5 min-w-0">
-          <h2 class="text-sm font-bold mb-2 flex items-center gap-1.5">🔄 Küchen-Dienstplan</h2>
-          <p class="text-[11px] text-slate-400 mb-3">Wer fertig ist, klickt auf Weitergeben:</p>
-          <div id="rotation-box" class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800 text-center"></div>
-        </section>
 
         <!-- FAMILIEN TO-DO-LISTE -->
         <section class="glass rounded-3xl p-4 sm:p-5 min-w-0">
@@ -525,11 +518,11 @@
             <h2 class="text-sm font-bold flex items-center gap-1.5">📌 To-Do-Liste</h2>
             <button onclick="openTodoModal()" class="smooth-btn px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold shrink-0">+ Hinzufügen</button>
           </div>
-          <div id="todo-list" class="space-y-2.5 max-h-56 overflow-y-auto pr-1"></div>
+          <div id="todo-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1"></div>
         </section>
 
         <!-- CHAT -->
-        <section class="glass rounded-3xl p-4 sm:p-5 flex flex-col h-[340px] min-w-0">
+        <section class="glass rounded-3xl p-4 sm:p-5 flex flex-col h-[380px] min-w-0">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-3 text-xs"></div>
           <form id="chat-form" class="flex gap-2.5 min-w-0">
@@ -766,7 +759,7 @@
       }
     ];
 
-    const ROTATION_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem'];
+    const KNOWN_FAMILY_MEMBERS = ['Osman', 'Yusuf', 'Esma', 'Eslem', 'Seda Chef', 'Iboboss'];
 
     const USER_DISPLAY_NAMES = {
       'yusfkemler@gmail.com': 'Yusuf',
@@ -832,17 +825,23 @@
     }
 
     let audioCtx = null;
+    function getAudioContext() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!audioCtx) audioCtx = new AudioContextClass();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
     function playGentlePop() {
       if (!userPrefs.sound) return;
       try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        if (!audioCtx) audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const ctx = getAudioContext();
+        if (!ctx) return;
 
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(520, now);
         osc.frequency.exponentialRampToValueAtTime(760, now + 0.085);
@@ -852,9 +851,33 @@
         gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.11);
 
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
         osc.start(now);
         osc.stop(now + 0.12);
+      } catch (_) {}
+    }
+
+    function playGentleDeleteSound() {
+      if (!userPrefs.sound) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.09);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.045, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0006, now + 0.105);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.115);
       } catch (_) {}
     }
 
@@ -953,7 +976,6 @@
     let chatMessages = [];
     let todos = [];
     let userProfiles = {};
-    let currentRotation = { current_person: 'Osman', id: null };
     let activeReactionPopupId = null;
     let selectedCustomTaskPoints = 15;
     let selectedTodoCustomPoints = 15;
@@ -1114,6 +1136,8 @@
       modal.classList.remove('hidden');
       confirmBtn.onclick = async () => {
         modal.classList.add('hidden');
+        playGentleDeleteSound();
+        triggerGentleHaptic();
         await db.from('family_tasks').delete().eq('id', id);
         showToast('Eintrag erfolgreich gelöscht.');
       };
@@ -1606,15 +1630,6 @@
       renderTodos();
       knownTodoIds = new Set(todos.map(t => String(t.id)));
 
-      const { data: rotData } = await db.from('family_rotation').select('*').limit(1);
-      if (rotData && rotData.length > 0) {
-        currentRotation = rotData[0];
-      } else {
-        await db.from('family_rotation').insert([{ current_person: 'Osman', completed: false }]);
-        currentRotation = { current_person: 'Osman', completed: false };
-      }
-      renderRotation();
-
       if (!document.getElementById('shop-view').classList.contains('hidden')) {
         renderShop();
       }
@@ -1724,40 +1739,6 @@
           </div>
         `;
       }).join('');
-    }
-
-    async function nextRotationPerson() {
-      const currentIndex = ROTATION_MEMBERS.indexOf(currentRotation.current_person);
-      const nextIndex = (currentIndex + 1) % ROTATION_MEMBERS.length;
-      const nextPerson = ROTATION_MEMBERS[nextIndex];
-
-      if (currentRotation.id) {
-        const { error } = await db.from('family_rotation').update({ current_person: nextPerson }).eq('id', currentRotation.id);
-        if (error) return showToast('Fehler beim Weitergeben: ' + error.message, true);
-      } else {
-        const { error } = await db.from('family_rotation').insert([{ current_person: nextPerson, completed: false }]);
-        if (error) return showToast('Fehler beim Weitergeben: ' + error.message, true);
-      }
-
-      currentRotation.current_person = nextPerson;
-      renderRotation();
-      showToast(`Dienst weitergegeben an ${nextPerson}!`);
-    }
-
-    function renderRotation() {
-      const person = currentRotation.current_person || 'Osman';
-      document.getElementById('rotation-box').innerHTML = `
-        <div class="mb-2.5 flex flex-col items-center">
-          <span class="text-xs text-slate-400 mb-1.5">Aktuell dran mit Küche/Spüli:</span>
-          <div class="flex items-center gap-2">
-            ${renderAvatarBadge(person, 'sm')}
-            <p class="text-base font-extrabold text-amber-300">${escapeHtml(person)}</p>
-          </div>
-        </div>
-        <button type="button" onclick="nextRotationPerson()" class="smooth-btn w-full py-2 px-3 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white font-semibold text-xs">
-          Erledigt → Weitergeben an Nächsten ➔
-        </button>
-      `;
     }
 
     document.getElementById('chat-form').addEventListener('submit', async (e) => {
@@ -1905,7 +1886,7 @@
       const myName = currentUser ? getDisplayName(currentUser.email) : null;
 
       const nameSet = new Set(Object.keys(userProfiles).map(normalizeName));
-      ROTATION_MEMBERS.forEach(m => nameSet.add(normalizeName(m)));
+      KNOWN_FAMILY_MEMBERS.forEach(m => nameSet.add(normalizeName(m)));
       if (myName) nameSet.add(myName);
       const allNames = Array.from(nameSet);
 
