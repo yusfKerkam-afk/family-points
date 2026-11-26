@@ -295,6 +295,44 @@
 
   <div id="toast" class="fixed top-5 right-5 z-50 hidden glass px-4 py-3 rounded-xl text-sm font-medium shadow-2xl"></div>
 
+  <!-- EINSTELLUNGEN MODAL -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeSettingsModal()">
+    <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/30" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⚙️</span>
+          <h3 class="text-base font-bold text-white">Einstellungen</h3>
+        </div>
+        <button type="button" onclick="closeSettingsModal()" class="smooth-btn text-slate-400 hover:text-white text-lg px-2.5 py-1 bg-slate-800 rounded-xl">✕</button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Persönliche Rückmeldungen nur für dieses Gerät:</p>
+
+      <div class="space-y-3 mb-5">
+        <label class="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800 cursor-pointer">
+          <div class="min-w-0">
+            <span class="text-xs sm:text-sm font-semibold text-slate-100 block">🔊 Sanfter Sound</span>
+            <span class="text-[11px] text-slate-400 block">Kurzes, dezentes Plopp beim Erledigen von Aufgaben</span>
+          </div>
+          <input type="checkbox" id="pref-sound-toggle" onchange="updatePreference('sound', this.checked)"
+            class="w-4 h-4 accent-emerald-500 rounded shrink-0 cursor-pointer" />
+        </label>
+
+        <label class="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800 cursor-pointer">
+          <div class="min-w-0">
+            <span class="text-xs sm:text-sm font-semibold text-slate-100 block">📳 Sanfte Haptik</span>
+            <span class="text-[11px] text-slate-400 block">Leichte Vibration beim Punkte-Sammeln (falls unterstützt)</span>
+          </div>
+          <input type="checkbox" id="pref-haptic-toggle" onchange="updatePreference('haptic', this.checked)"
+            class="w-4 h-4 accent-emerald-500 rounded shrink-0 cursor-pointer" />
+        </label>
+      </div>
+
+      <button type="button" onclick="closeSettingsModal()" class="smooth-btn w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs shadow-lg shadow-emerald-600/30">
+        Fertig
+      </button>
+    </div>
+  </div>
+
   <!-- MONATSSIEGER & COIN-AUSSCHÜTTUNG MODAL -->
   <div id="winner-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="glass-card w-full max-w-md p-7 rounded-3xl relative fade-in text-center border border-amber-400/50">
@@ -312,22 +350,22 @@
     <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in border border-emerald-500/40">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-2xl">✨</span>
-        <h3 class="text-lg font-bold text-emerald-300">Update (v3.1)</h3>
+        <h3 class="text-lg font-bold text-emerald-300">Update (v3.2)</h3>
       </div>
       <p class="text-xs text-slate-300 mb-4">Das ist neu:</p>
       
       <div class="space-y-2.5 mb-6 text-xs bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Abwasch angepasst:</b> <b>1 Topf</b> gibt <b>+10 Pkt</b> und <b>2 Töpfe oder mehr</b> gibt jetzt <b>+20 Pkt</b>.</span>
+          <span class="text-slate-200"><b>Verlauf-Filter:</b> Mit <b>Alle / Nur ich</b> findest du deine eigenen Einträge jetzt noch schneller.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-emerald-400 font-bold">•</span>
-          <span class="text-slate-200"><b>Toilette putzen:</b> Jetzt aufgeteilt in <b>1 Toilette (+10 Pkt)</b> und <b>2 Toiletten (+20 Pkt)</b> – auch bei den To-Dos.</span>
+          <span class="text-slate-200"><b>Einstellungen-Menü:</b> Oben erreichbar – inklusive ausstellbarem <b>sanftem Sound</b> und <b>Haptik</b>.</span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-amber-300 font-bold">•</span>
-          <span class="text-slate-200"><b>Edle Profil-Ansicht:</b> Wenn du auf ein Profil klickst, erscheint es jetzt mit sanften Farbverläufen und feinen Licht-Partikeln.</span>
+          <span class="text-slate-200"><b>Treppchen & Mobil-Abstände:</b> Platz 2 & 3 sind dezent veredelt und auf dem Handy gibt es mehr Luft zwischen Elementen.</span>
         </div>
       </div>
 
@@ -357,7 +395,7 @@
 
   <!-- TODO AUSWAHL MODAL -->
   <div id="todo-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto">
+    <div class="glass-card w-full max-w-md p-6 rounded-3xl relative fade-in max-h-[90vh] overflow-y-auto overflow-x-hidden">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-base font-bold">📌 To-Do hinzufügen</h3>
         <button onclick="closeTodoModal()" class="smooth-btn text-slate-400 hover:text-white text-lg px-2 py-1 bg-slate-800 rounded-xl">✕</button>
@@ -390,14 +428,14 @@
           </button>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex gap-2.5">
           <input type="text" id="todo-extra-input" placeholder="..."
             class="w-full min-w-0 flex-1 px-3 py-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-xs text-white focus:outline-none" />
-          <button type="button" id="todo-confirm-btn" class="smooth-btn px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap">Hinzufügen</button>
+          <button type="button" id="todo-confirm-btn" class="smooth-btn px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl whitespace-nowrap shrink-0">Hinzufügen</button>
         </div>
       </div>
 
-      <div id="todo-selection-list" class="space-y-2"></div>
+      <div id="todo-selection-list" class="space-y-2.5"></div>
     </div>
   </div>
 
@@ -430,26 +468,31 @@
   </div>
 
   <!-- MAIN APP VIEW -->
-  <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3 sm:p-6">
+  <div id="app-view" class="hidden min-h-screen flex flex-col max-w-7xl mx-auto p-3.5 sm:p-6 overflow-x-hidden">
     <!-- HEADER -->
-    <header class="glass rounded-2xl px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 mb-6">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-        <div class="flex items-center gap-2.5">
-          <span class="text-lg sm:text-xl">🏆</span>
-          <span class="font-bold text-base sm:text-lg tracking-tight">FamilyPoints</span>
-          <span class="hidden xs:inline-flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+    <header class="glass rounded-2xl px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 mb-5 sm:mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="text-lg sm:text-xl shrink-0">🏆</span>
+          <span class="font-bold text-base sm:text-lg tracking-tight truncate">FamilyPoints</span>
+          <span class="hidden xs:inline-flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
           </span>
         </div>
-        <span class="text-[11px] text-slate-400/70 italic font-light tracking-wide sm:border-l sm:border-slate-700/60 sm:pl-3">
+        <span class="text-[11px] text-slate-400/70 italic font-light tracking-wide sm:border-l sm:border-slate-700/60 sm:pl-3 truncate">
           "Niyetin hayır, başlangıcın Bismillah ile olsun."
         </span>
       </div>
       
-      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
         <button onclick="openShopView()" class="smooth-btn text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 hover:from-amber-500/30 hover:to-emerald-500/30 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 shadow-sm">
           <span>🛍️ Shop</span>
           <span class="bg-slate-900/80 px-1.5 py-0.5 rounded-md text-[11px] text-amber-200" id="header-coins">0 🪙</span>
+        </button>
+
+        <button type="button" onclick="openSettingsModal()" class="smooth-btn text-xs font-medium px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1" title="Einstellungen">
+          <span>⚙️</span>
+          <span class="hidden sm:inline">Einstellungen</span>
         </button>
 
         <button onclick="openChangelog()" class="smooth-btn text-[11px] font-medium px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-slate-700">
@@ -464,62 +507,62 @@
       </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 min-w-0">
       
       <!-- LINKS: Dienstplan, To-Do-Liste & Chat -->
-      <div class="lg:col-span-3 space-y-6">
+      <div class="lg:col-span-3 space-y-5 sm:space-y-6 min-w-0">
         
         <!-- ROTATIONS-DIENSTPLAN -->
-        <section class="glass rounded-3xl p-5">
+        <section class="glass rounded-3xl p-4 sm:p-5 min-w-0">
           <h2 class="text-sm font-bold mb-2 flex items-center gap-1.5">🔄 Küchen-Dienstplan</h2>
           <p class="text-[11px] text-slate-400 mb-3">Wer fertig ist, klickt auf Weitergeben:</p>
           <div id="rotation-box" class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800 text-center"></div>
         </section>
 
         <!-- FAMILIEN TO-DO-LISTE -->
-        <section class="glass rounded-3xl p-5">
-          <div class="flex items-center justify-between mb-3">
+        <section class="glass rounded-3xl p-4 sm:p-5 min-w-0">
+          <div class="flex items-center justify-between gap-2 mb-3">
             <h2 class="text-sm font-bold flex items-center gap-1.5">📌 To-Do-Liste</h2>
-            <button onclick="openTodoModal()" class="smooth-btn px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">+ Hinzufügen</button>
+            <button onclick="openTodoModal()" class="smooth-btn px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold shrink-0">+ Hinzufügen</button>
           </div>
-          <div id="todo-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+          <div id="todo-list" class="space-y-2.5 max-h-56 overflow-y-auto pr-1"></div>
         </section>
 
         <!-- CHAT -->
-        <section class="glass rounded-3xl p-5 flex flex-col h-[340px]">
+        <section class="glass rounded-3xl p-4 sm:p-5 flex flex-col h-[340px] min-w-0">
           <h2 class="text-sm font-bold mb-3 flex items-center gap-1.5">💬 Familien-Chat</h2>
           <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-3 text-xs"></div>
-          <form id="chat-form" class="flex gap-2">
+          <form id="chat-form" class="flex gap-2.5 min-w-0">
             <input type="text" id="chat-input" required placeholder="Nachricht..."
               class="w-full min-w-0 flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white transition" />
-            <button type="submit" class="smooth-btn px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold whitespace-nowrap">Senden</button>
+            <button type="submit" class="smooth-btn px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold whitespace-nowrap shrink-0">Senden</button>
           </form>
         </section>
       </div>
 
       <!-- MITTE: Aufgaben & Bestenliste -->
-      <div class="lg:col-span-6 space-y-6">
-        <section class="glass-card rounded-3xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold flex items-center gap-2">🥇 Familien-Bestenliste</h2>
-            <span class="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">Top 3 = Coins 🪙</span>
+      <div class="lg:col-span-6 space-y-5 sm:space-y-6 min-w-0">
+        <section class="glass-card rounded-3xl p-5 sm:p-6 min-w-0">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">🥇 Familien-Bestenliste</h2>
+            <span class="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full shrink-0">Top 3 = Coins 🪙</span>
           </div>
           <div id="leaderboard-list" class="space-y-3"></div>
         </section>
 
-        <section class="glass rounded-3xl p-6">
-          <h2 class="text-lg font-bold mb-1">✅ Aufgabe erledigen</h2>
+        <section class="glass rounded-3xl p-5 sm:p-6 min-w-0">
+          <h2 class="text-base sm:text-lg font-bold mb-1">✅ Aufgabe erledigen</h2>
           <p class="text-xs text-slate-400 mb-4">Wähle eine Kategorie oder Unterkategorie:</p>
           
           <div id="tasks-container" class="space-y-3 mb-5"></div>
 
           <div class="pt-4 border-t border-slate-700/70">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
               <label class="text-xs font-medium text-slate-300">
                 Eigene Aufgabe eintragen
               </label>
               <!-- EIGENE PUNKTE-PILLS -->
-              <div class="inline-flex p-1 rounded-xl bg-slate-900/90 border border-slate-700/80 gap-1" role="group" aria-label="Punkte wählen">
+              <div class="inline-flex p-1 rounded-xl bg-slate-900/90 border border-slate-700/80 gap-1 flex-wrap" role="group" aria-label="Punkte wählen">
                 <button type="button" onclick="selectCustomTaskPoints(5)" data-task-pts="5"
                   class="task-pts-btn smooth-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
                   +5 Pkt
@@ -538,11 +581,11 @@
                 </button>
               </div>
             </div>
-            <form id="custom-task-form" class="flex gap-2">
+            <form id="custom-task-form" class="flex gap-2.5 min-w-0">
               <input type="text" id="custom-task-input" required placeholder="z. B. Blumen gegossen..."
-                class="w-full min-w-0 flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white transition" />
+                class="w-full min-w-0 flex-1 px-3.5 sm:px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white transition" />
               <button type="submit"
-                class="smooth-btn px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-sm whitespace-nowrap">
+                class="smooth-btn px-4 sm:px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-sm whitespace-nowrap shrink-0">
                 Eintragen
               </button>
             </form>
@@ -551,10 +594,20 @@
       </div>
 
       <!-- RECHTS: Aktivitäten-Verlauf -->
-      <div class="lg:col-span-3">
-        <section class="glass rounded-3xl p-5 h-full flex flex-col">
-          <div class="flex items-center justify-between mb-4">
+      <div class="lg:col-span-3 min-w-0">
+        <section class="glass rounded-3xl p-4 sm:p-5 h-full flex flex-col min-w-0">
+          <div class="flex items-center justify-between gap-2 mb-3.5">
             <h2 class="text-sm font-bold">📜 Verlauf</h2>
+            <div class="inline-flex p-0.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-[11px]" role="group" aria-label="Verlauf filtern">
+              <button type="button" id="filter-btn-all" onclick="setActivityFilter('all')"
+                class="smooth-btn px-2 py-1 rounded-md font-bold bg-emerald-600/30 text-emerald-300">
+                Alle
+              </button>
+              <button type="button" id="filter-btn-mine" onclick="setActivityFilter('mine')"
+                class="smooth-btn px-2 py-1 rounded-md font-semibold text-slate-400 hover:text-white">
+                Nur ich
+              </button>
+            </div>
           </div>
           <div id="activity-feed" class="space-y-2.5 overflow-y-auto max-h-[600px] pr-1 text-xs"></div>
         </section>
@@ -564,16 +617,16 @@
   </div>
 
   <!-- SHOP VIEW -->
-  <div id="shop-view" class="hidden min-h-screen flex flex-col max-w-4xl mx-auto p-3 sm:p-6 fade-in">
+  <div id="shop-view" class="hidden min-h-screen flex flex-col max-w-4xl mx-auto p-3.5 sm:p-6 fade-in overflow-x-hidden">
     <!-- SHOP HEADER -->
     <div class="glass rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3 mb-6 sticky top-3 z-30">
-      <button onclick="closeShopView()" class="smooth-btn px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-1.5">
+      <button onclick="closeShopView()" class="smooth-btn px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-1.5 shrink-0">
         <span>←</span> Zurück
       </button>
-      <h1 class="text-base sm:text-lg font-extrabold tracking-tight flex items-center gap-1.5">
+      <h1 class="text-sm sm:text-lg font-extrabold tracking-tight flex items-center gap-1.5 truncate">
         <span>🛍️</span> Avatar- & Rahmen-Shop
       </h1>
-      <div class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs sm:text-sm">
+      <div class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs sm:text-sm shrink-0">
         <span id="shop-coins-balance">0</span> 🪙
       </div>
     </div>
@@ -629,7 +682,7 @@
       <h3 id="confirm-modal-title" class="text-base font-bold text-slate-100 mb-1">Eintrag löschen?</h3>
       <p id="confirm-modal-desc" class="text-xs text-slate-400 mb-5">Möchtest du diesen Eintrag wirklich aus dem Verlauf entfernen?</p>
       
-      <div class="flex gap-2">
+      <div class="flex gap-2.5">
         <button type="button" onclick="closeConfirmModal()" class="smooth-btn flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
           Abbrechen
         </button>
@@ -644,7 +697,8 @@
     const SUPABASE_URL = 'https://gnebmmsararwepwpoeek.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cUtMwo3RBXrT1cbVSbZsWw_36iYbSXD';
     
-    const CURRENT_VERSION = '3.1';
+    const CURRENT_VERSION = '3.2';
+    const PREFS_STORAGE_KEY = 'familypoints_user_prefs_v1';
     const FRESH_HIGHLIGHT_MS = 3 * 60 * 1000;
     const CHAT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -723,11 +777,100 @@
       'esma@gmail.com': 'Esma',
     };
 
-    // Falsch geschriebene / doppelte Namen -> richtiger Name
     const NAME_ALIASES = {
       'ibo boss': 'Iboboss',
       'iboboss': 'Iboboss'
     };
+
+    function loadPreferences() {
+      try {
+        const raw = localStorage.getItem(PREFS_STORAGE_KEY);
+        if (!raw) return { sound: true, haptic: true };
+        const parsed = JSON.parse(raw);
+        return {
+          sound: parsed.sound !== false,
+          haptic: parsed.haptic !== false
+        };
+      } catch (_) {
+        return { sound: true, haptic: true };
+      }
+    }
+
+    let userPrefs = loadPreferences();
+
+    function savePreferences() {
+      try {
+        localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(userPrefs));
+      } catch (_) {}
+    }
+
+    function syncSettingsUI() {
+      const soundEl = document.getElementById('pref-sound-toggle');
+      const hapticEl = document.getElementById('pref-haptic-toggle');
+      if (soundEl) soundEl.checked = !!userPrefs.sound;
+      if (hapticEl) hapticEl.checked = !!userPrefs.haptic;
+    }
+
+    function openSettingsModal() {
+      syncSettingsUI();
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function updatePreference(key, value) {
+      userPrefs[key] = !!value;
+      savePreferences();
+      if (key === 'sound' && userPrefs.sound) {
+        playGentleFeedback('sound');
+      }
+      if (key === 'haptic' && userPrefs.haptic) {
+        playGentleFeedback('haptic');
+      }
+    }
+
+    let audioCtx = null;
+    function playGentlePop() {
+      if (!userPrefs.sound) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(760, now + 0.085);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.06, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.11);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      } catch (_) {}
+    }
+
+    function triggerGentleHaptic() {
+      if (!userPrefs.haptic) return;
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+          navigator.vibrate(14);
+        }
+      } catch (_) {}
+    }
+
+    function playGentleFeedback(mode = 'both') {
+      if (mode === 'sound' || mode === 'both') playGentlePop();
+      if (mode === 'haptic' || mode === 'both') triggerGentleHaptic();
+    }
 
     function normalizeName(name) {
       if (!name) return name;
@@ -770,7 +913,6 @@
       const yesterday = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate() - 1);
       const yesterdayKey = toLocalDayKey(yesterday);
 
-      // Streak startet heute (wenn heute etwas erledigt wurde) oder gestern (falls heute noch offen ist)
       let cursor = null;
       if (activeDaysSet.has(todayKey)) {
         cursor = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
@@ -815,10 +957,27 @@
     let activeReactionPopupId = null;
     let selectedCustomTaskPoints = 15;
     let selectedTodoCustomPoints = 15;
+    let activityFilter = 'all';
 
     let knownTaskIds = null;
     let knownChatIds = null;
     let knownTodoIds = null;
+
+    function setActivityFilter(mode) {
+      activityFilter = mode === 'mine' ? 'mine' : 'all';
+      const allBtn = document.getElementById('filter-btn-all');
+      const mineBtn = document.getElementById('filter-btn-mine');
+      if (allBtn && mineBtn) {
+        if (activityFilter === 'all') {
+          allBtn.className = 'smooth-btn px-2 py-1 rounded-md font-bold bg-emerald-600/30 text-emerald-300';
+          mineBtn.className = 'smooth-btn px-2 py-1 rounded-md font-semibold text-slate-400 hover:text-white';
+        } else {
+          mineBtn.className = 'smooth-btn px-2 py-1 rounded-md font-bold bg-emerald-600/30 text-emerald-300';
+          allBtn.className = 'smooth-btn px-2 py-1 rounded-md font-semibold text-slate-400 hover:text-white';
+        }
+      }
+      renderActivityFeed();
+    }
 
     function selectCustomTaskPoints(pts) {
       selectedCustomTaskPoints = pts;
@@ -867,6 +1026,7 @@
     }
 
     function showPointsAnimation(points, event) {
+      playGentleFeedback('both');
       const el = document.createElement('div');
       el.className = 'floating-points';
       el.textContent = `+${points} Pkt 🚀`;
@@ -886,6 +1046,7 @@
     }
 
     function triggerShopPurchaseSparkle() {
+      playGentleFeedback('both');
       const previewCard = document.getElementById('shop-preview-card');
       if (!previewCard) return;
 
@@ -1051,6 +1212,8 @@
       document.getElementById('shop-view').classList.add('hidden');
       document.getElementById('app-view').classList.remove('hidden');
       
+      syncSettingsUI();
+      setActivityFilter('all');
       renderCategories();
       resetTodoSelection();
       await loadAllData();
@@ -1293,16 +1456,16 @@
         if (cat.isAccordion) {
           return `
             <div class="border border-slate-700/80 rounded-2xl bg-slate-800/40 overflow-hidden">
-              <button type="button" onclick="toggleAccordion(${idx})" class="smooth-btn w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/80">
-                <span class="text-sm font-medium text-slate-100">${cat.title}</span>
-                <span class="text-xs text-emerald-400 font-bold">▼ Auswahl</span>
+              <button type="button" onclick="toggleAccordion(${idx})" class="smooth-btn w-full p-3.5 flex items-center justify-between gap-2 text-left hover:bg-slate-800/80">
+                <span class="text-sm font-medium text-slate-100 min-w-0">${cat.title}</span>
+                <span class="text-xs text-emerald-400 font-bold shrink-0">▼ Auswahl</span>
               </button>
               <div id="accordion-${idx}" class="accordion-content px-3 pb-3 space-y-2">
                 ${cat.subtasks.map(sub => `
                   <button type="button" onclick="addTaskWithAnim(event, '${escapeHtml(sub.title)}', ${sub.points})"
-                    class="smooth-btn w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-emerald-600/20 border border-slate-700/50 flex items-center justify-between text-left">
-                    <span class="text-xs text-slate-200">↳ ${escapeHtml(sub.title)}</span>
-                    <span class="text-xs font-bold text-emerald-300">+${sub.points} Pkt</span>
+                    class="smooth-btn w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-emerald-600/20 border border-slate-700/50 flex items-center justify-between gap-2 text-left">
+                    <span class="text-xs text-slate-200 min-w-0">↳ ${escapeHtml(sub.title)}</span>
+                    <span class="text-xs font-bold text-emerald-300 shrink-0">+${sub.points} Pkt</span>
                   </button>
                 `).join('')}
               </div>
@@ -1311,9 +1474,9 @@
         } else {
           return `
             <button type="button" onclick="addTaskWithAnim(event, '${escapeHtml(cat.title)}', ${cat.points})"
-              class="smooth-btn w-full p-3.5 rounded-2xl bg-slate-800/80 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 flex items-center justify-between text-left group">
-              <span class="text-sm font-medium text-slate-100 group-hover:text-white">${escapeHtml(cat.title)}</span>
-              <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 ml-2 whitespace-nowrap">+${cat.points} Pkt</span>
+              class="smooth-btn w-full p-3.5 rounded-2xl bg-slate-800/80 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 flex items-center justify-between gap-2.5 text-left group">
+              <span class="text-sm font-medium text-slate-100 group-hover:text-white min-w-0">${escapeHtml(cat.title)}</span>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 shrink-0 whitespace-nowrap">+${cat.points} Pkt</span>
             </button>
           `;
         }
@@ -1348,20 +1511,20 @@
       let html = '';
       TASK_CATEGORIES.forEach(cat => {
         if (cat.todoOverride) {
-          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.todoOverride.title)}', ${cat.todoOverride.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.todoOverride.title)}</span><span class="text-emerald-400 font-bold">${cat.todoOverride.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.todoOverride.title)}', ${cat.todoOverride.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center gap-2 text-slate-200 font-medium"><span class="min-w-0">${escapeHtml(cat.todoOverride.title)}</span><span class="text-emerald-400 font-bold shrink-0">${cat.todoOverride.points} Pkt</span></button>`;
         } else if (cat.isAccordion) {
           cat.subtasks.forEach(sub => {
             const subHasExtra = !!sub.hasExtra;
             const extraHint = subHasExtra ? ' (mit Zimmer-Option)' : '';
-            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, ${subHasExtra})" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium gap-2"><span>${escapeHtml(sub.title)}${extraHint}</span><span class="text-emerald-400 font-bold whitespace-nowrap">${sub.points} Pkt</span></button>`;
+            html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(sub.title)}', ${sub.points}, ${subHasExtra})" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium gap-2"><span class="min-w-0">${escapeHtml(sub.title)}${extraHint}</span><span class="text-emerald-400 font-bold whitespace-nowrap shrink-0">${sub.points} Pkt</span></button>`;
           });
         } else if (cat.hasExtra) {
-          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, true)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)} (mit Zimmer-Option)</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, true)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center gap-2 text-slate-200 font-medium"><span class="min-w-0">${escapeHtml(cat.title)} (mit Zimmer-Option)</span><span class="text-emerald-400 font-bold shrink-0">${cat.points} Pkt</span></button>`;
         } else {
-          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-slate-200 font-medium"><span>${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold">${cat.points} Pkt</span></button>`;
+          html += `<button type="button" onclick="handleTodoSelect('${escapeHtml(cat.title)}', ${cat.points}, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center gap-2 text-slate-200 font-medium"><span class="min-w-0">${escapeHtml(cat.title)}</span><span class="text-emerald-400 font-bold shrink-0">${cat.points} Pkt</span></button>`;
         }
       });
-      html += `<button type="button" onclick="handleTodoSelect('CUSTOM', 15, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center text-emerald-300 font-semibold"><span>✨ Eigene Aufgabe eingeben...</span><span>0–15 Pkt</span></button>`;
+      html += `<button type="button" onclick="handleTodoSelect('CUSTOM', 15, false)" class="smooth-btn w-full p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-700 text-xs text-left flex justify-between items-center gap-2 text-emerald-300 font-semibold"><span class="min-w-0">✨ Eigene Aufgabe eingeben...</span><span class="shrink-0">0–15 Pkt</span></button>`;
       listContainer.innerHTML = html;
     }
 
@@ -1482,6 +1645,8 @@
     async function addTaskWithAnim(event, taskTitle, points) {
       if (points > 0) {
         showPointsAnimation(points, event);
+      } else {
+        playGentleFeedback('both');
       }
       await addTask(taskTitle, points);
     }
@@ -1522,6 +1687,8 @@
       const numericPoints = parseInt(points, 10) || 0;
       if (numericPoints > 0) {
         showPointsAnimation(numericPoints, event);
+      } else {
+        playGentleFeedback('both');
       }
       await addTask(taskTitle, numericPoints);
       await db.from('family_todos').delete().eq('id', id);
@@ -1545,12 +1712,12 @@
           ? `<span class="text-[10px] text-emerald-400 mt-0.5 block">+${pts} Pkt (von ${escapeHtml(creator)})</span>`
           : `<span class="text-[10px] text-slate-400 mt-0.5 block">0 Pkt • Notiz/To-Do (von ${escapeHtml(creator)})</span>`;
         return `
-          <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} flex items-start justify-between p-2.5 rounded-xl border text-xs gap-2 bg-slate-900/60 border-slate-800">
+          <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} flex items-start justify-between p-2.5 sm:p-3 rounded-xl border text-xs gap-2.5 bg-slate-900/60 border-slate-800">
             <div class="flex-1 min-w-0 pr-1">
               <span class="text-slate-200 font-medium block break-words">${escapeHtml(t.text)}</span>
               ${pointsBadge}
             </div>
-            <div class="flex items-center gap-1 shrink-0 pt-0.5">
+            <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
               <button type="button" onclick="completeTodo(event, '${t.id}', '${escapeHtml(t.text).replace(/'/g, "\\'")}', ${pts})" class="smooth-btn text-emerald-300 hover:text-emerald-200 font-bold px-2 py-1 bg-emerald-950/80 rounded-lg text-[11px] whitespace-nowrap">✓ Erledigen</button>
               <button type="button" onclick="deleteTodo('${t.id}')" class="smooth-btn text-slate-500 hover:text-red-400 px-1.5 py-1 text-xs">✕</button>
             </div>
@@ -1679,7 +1846,7 @@
         const isPopupOpen = activeReactionPopupId === m.id;
 
         return `
-          <div onclick="handleMessageClick(event, '${m.id}')" class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} relative bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700">
+          <div onclick="handleMessageClick(event, '${m.id}')" class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} relative bg-slate-900/50 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 cursor-pointer hover:border-slate-700">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-start gap-2 min-w-0">
                 ${renderAvatarBadge(uName, 'sm')}
@@ -1755,25 +1922,40 @@
       container.innerHTML = sorted.map((entry, idx) => {
         const medal = medals[idx] || `#${idx + 1}`;
         const isFirst = idx === 0 && entry.points > 0;
+        const isSecond = idx === 1 && entry.points > 0;
+        const isThird = idx === 2 && entry.points > 0;
         const showCrown = isFirst && isFirstDay;
         const showStreak = entry.streak >= 2;
         const isMe = myName && entry.name === myName;
+
+        let rankCardStyle = 'bg-slate-800/60 border border-slate-700/60';
+        if (isFirst) {
+          rankCardStyle = 'first-place-shimmer bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40 shadow-lg shadow-amber-500/10';
+        } else if (isSecond) {
+          rankCardStyle = 'bg-gradient-to-r from-slate-300/12 via-slate-800/70 to-slate-800/60 border border-slate-300/30';
+        } else if (isThird) {
+          rankCardStyle = 'bg-gradient-to-r from-orange-400/12 via-slate-800/70 to-slate-800/60 border border-orange-400/30';
+        }
+
+        const nameColorClass = isFirst
+          ? 'text-amber-200'
+          : (isSecond ? 'text-slate-100' : (isThird ? 'text-orange-100' : 'text-white'));
         
         return `
-          <div onclick="openProfile('${entry.name}')" class="smooth-card cursor-pointer p-3.5 sm:p-4 rounded-2xl flex items-center justify-between ${isFirst ? 'first-place-shimmer bg-gradient-to-r from-amber-500/20 to-emerald-500/10 border border-amber-400/40 shadow-lg shadow-amber-500/10' : 'bg-slate-800/60 border border-slate-700/60'} hover:border-emerald-500">
+          <div onclick="openProfile('${entry.name}')" class="smooth-card cursor-pointer p-3.5 sm:p-4 rounded-2xl flex items-center justify-between gap-2 ${rankCardStyle} hover:border-emerald-500">
             <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 relative z-10">
               <span class="text-lg sm:text-xl w-6 text-center font-bold shrink-0">${medal}</span>
               ${renderAvatarBadge(entry.name, 'md')}
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
-                  <span class="font-bold text-sm sm:text-base truncate ${isFirst ? 'text-amber-200' : 'text-white'}">${escapeHtml(entry.name)}</span>
+                  <span class="font-bold text-sm sm:text-base truncate ${nameColorClass}">${escapeHtml(entry.name)}</span>
                   ${isMe ? '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">(Ich)</span>' : ''}
                   ${showCrown ? '<span title="Monatssieger!" class="text-sm shrink-0">👑</span>' : ''}
                 </div>
                 ${showStreak ? `<span class="text-[11px] text-amber-400 font-medium block">🔥 ${entry.streak} Tage Streak</span>` : ''}
               </div>
             </div>
-            <div class="text-right shrink-0 ml-2 relative z-10">
+            <div class="text-right shrink-0 ml-1 relative z-10">
               <span class="text-base sm:text-lg font-extrabold text-emerald-400">${entry.points}</span>
               <span class="text-[11px] text-slate-400 block sm:inline sm:ml-1">Punkte</span>
             </div>
@@ -1822,28 +2004,28 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-6">
-          <div class="bg-gradient-to-br from-slate-900/75 via-slate-900/60 to-emerald-950/35 border border-emerald-500/20 p-3.5 rounded-2xl text-center">
+          <div class="bg-gradient-to-br from-slate-900/75 via-slate-900/60 to-emerald-950/35 border border-emerald-500/20 p-3.5 rounded-2xl text-center min-w-0">
             <span class="block text-xs text-slate-400">Lieblingsaufgabe</span>
             <span class="text-xs font-bold text-slate-100 mt-1 block truncate">${escapeHtml(favoriteTask)}</span>
           </div>
-          <div class="bg-gradient-to-br from-slate-900/75 via-slate-900/60 to-amber-950/25 border border-amber-400/20 p-3.5 rounded-2xl text-center">
+          <div class="bg-gradient-to-br from-slate-900/75 via-slate-900/60 to-amber-950/25 border border-amber-400/20 p-3.5 rounded-2xl text-center min-w-0">
             <span class="block text-xs text-slate-400">Aktivitäten (7 Tage)</span>
             <span class="text-sm font-extrabold text-emerald-400 mt-1 block">${weeklyTasks.length} erledigt</span>
           </div>
         </div>
 
         <h3 class="text-sm font-bold mb-3 text-slate-100">📋 Letzte Aktivitäten von ${escapeHtml(userName)}</h3>
-        <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+        <div class="space-y-2.5 max-h-48 overflow-y-auto pr-1">
           ${userTasks.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">Noch keine Aktivitäten.</p>' : ''}
           ${userTasks.slice(0, 15).map(t => {
             const dateStr = formatDateTime(t.created_at);
             return `
-              <div class="bg-gradient-to-r from-slate-900/75 to-slate-900/45 p-2.5 rounded-xl border border-slate-800/90 flex justify-between items-center text-xs">
-                <div>
-                  <p class="text-slate-200">${escapeHtml(t.task_title)}</p>
+              <div class="bg-gradient-to-r from-slate-900/75 to-slate-900/45 p-2.5 rounded-xl border border-slate-800/90 flex justify-between items-center gap-2 text-xs">
+                <div class="min-w-0">
+                  <p class="text-slate-200 break-words">${escapeHtml(t.task_title)}</p>
                   <span class="text-[10px] text-slate-500">${dateStr} Uhr</span>
                 </div>
-                <span class="text-emerald-300 font-bold">+${t.points} Pkt</span>
+                <span class="text-emerald-300 font-bold shrink-0">+${t.points} Pkt</span>
               </div>
             `;
           }).join('')}
@@ -1859,9 +2041,18 @@
 
     function renderActivityFeed() {
       const feed = document.getElementById('activity-feed');
-      const recent = allTasks.slice(0, 30);
+      const myName = currentUser ? getDisplayName(currentUser.email) : null;
+
+      const filteredTasks = activityFilter === 'mine' && myName
+        ? allTasks.filter(t => (currentUser && t.user_id === currentUser.id) || normalizeName(t.user_name) === myName)
+        : allTasks;
+
+      const recent = filteredTasks.slice(0, 30);
       if (recent.length === 0) {
-        feed.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">Hier erscheint live der Verlauf.</p>`;
+        const emptyText = activityFilter === 'mine'
+          ? 'Du hast noch keine Einträge im Verlauf.'
+          : 'Hier erscheint live der Verlauf.';
+        feed.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">${emptyText}</p>`;
         return;
       }
 
@@ -1878,13 +2069,13 @@
         const isNewEntry = knownTaskIds !== null && !knownTaskIds.has(String(t.id));
 
         return `
-          <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="smooth-card ${isNewEntry ? 'pop-in' : ''} ${isFresh ? 'fresh-highlight' : ''} p-2.5 sm:p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2.5">
             <div class="flex items-start gap-2 min-w-0">
               ${renderAvatarBadge(uName, 'sm')}
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
-                  <span class="font-bold text-emerald-400 leading-none">${escapeHtml(uName)}</span>
-                  ${isFresh ? '<span class="text-[9px] font-semibold text-emerald-300/90 leading-none">• Neu</span>' : ''}
+                  <span class="font-bold text-emerald-400 leading-none truncate">${escapeHtml(uName)}</span>
+                  ${isFresh ? '<span class="text-[9px] font-semibold text-emerald-300/90 leading-none shrink-0">• Neu</span>' : ''}
                 </div>
                 <p class="text-slate-200 leading-snug break-words">${escapeHtml(t.task_title)}</p>
                 <span class="text-[10px] text-slate-500">${dateTimeStr} Uhr</span>
